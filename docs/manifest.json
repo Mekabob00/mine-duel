@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0-web",
+  "files": [
+    ".nojekyll",
+    "css/style.0f100040a169.css",
+    "index.html",
+    "js/ai.d89a3dc3a1e3.js",
+    "js/board.95cef3ba5277.js",
+    "js/config.556ceba9f326.js",
+    "js/game.759f24963f37.js",
+    "js/main.82336c8443d0.js",
+    "js/timer.045c57e1eecb.js",
+    "js/ui.c5deb107d392.js",
+    "manifest.json"
+  ]
+}
