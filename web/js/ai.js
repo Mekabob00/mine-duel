@@ -78,7 +78,7 @@ export function cpuStep(game, brain) {
   if ([PHASE.OPEN_MINE, PHASE.MINE].includes(game.phase)) {
     for (const target of brain.mineProposals(board)) {
       const reply = game.placeMine(SIDE.CPU, target);
-      if (reply.ok) return { ...reply, message: 'CPU가 지뢰를 설치했습니다. 숫자를 갱신했습니다.' };
+      if (reply.ok) return { ...reply, message: 'cpuMinePlaced' };
     }
     const marker = brain.ownMarkerToRemove(board);
     if (marker >= 0) return game.removeMarker(SIDE.CPU, marker);

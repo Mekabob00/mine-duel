@@ -68,7 +68,7 @@ test('draw when all hidden cells are marked', () => {
 test('no mandatory mine placement remains => draw; own marker can restore progress', () => {
   const noPlace = started({width:2,height:2,initialMines:0,minesPerTurn:2});
   noPlace.explore(S.PLAYER,1); noPlace.placeMine(S.PLAYER,2);
-  assert.equal(noPlace.result,'draw'); assert.match(noPlace.reason,/설치할 수/);
+  assert.equal(noPlace.result,'draw'); assert.equal(noPlace.reason,'noMine');
   const restore = started({width:3,height:2,markersPerTurn:2});
   restore.addMarker(S.PLAYER,3); restore.addMarker(S.PLAYER,4); restore.explore(S.PLAYER,2);
   assert.equal(restore.phase,P.MINE); restore.removeMarker(S.PLAYER,3); assert.equal(restore.placeMine(S.PLAYER,3).ok,true);

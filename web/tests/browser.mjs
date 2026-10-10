@@ -7,7 +7,7 @@ import { seeded } from './helpers.js';
 const base=process.env.TEST_URL||'http://127.0.0.1:4173';
 const results=fileURLToPath(new URL('../test-results/',import.meta.url));await mkdir(results,{recursive:true});
 let checks=0;const check=(condition,message)=>{checks++;assert.ok(condition,message);};
-const tap=async(page,selector)=> {const element=page.locator(selector).first();await element.tap();};
+const tap=async(page,selector)=> {const element=page.locator(selector).first();await element.tap();if(selector==='#help'||selector==='#result-help') await page.locator('[data-menu=rules]').tap();if(selector==='#restart')await page.locator('#confirm-restart').tap();};
 const state=page=>page.evaluate(()=>['turn','phase','mine-counts','marker-budget','feedback'].map(id=>document.getElementById(id).textContent).concat([...document.querySelectorAll('.cell')].map(c=>c.className+':'+c.innerHTML+':'+c.getAttribute('aria-label'))).concat([...document.querySelectorAll('[data-mode]')].map(c=>c.getAttribute('aria-pressed'))).join('|'));
 const outcomes={};
 const specs=[{name:'chromium-320x568',type:chromium,width:320,height:568}, {name:'chromium-360x640',type:chromium,width:360,height:640}, {name:'chromium-390x844',type:chromium,width:390,height:844}, {name:'chromium-desktop',type:chromium,width:1280,height:900}, {name:'webkit-390x844',type:webkit,width:390,height:844}];
@@ -17,7 +17,7 @@ for(const spec of specs) {
     const context=await browser.newContext({viewport:{width:spec.width,height:spec.height},hasTouch:true,isMobile:spec.width<600});
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
     await page.clock.install();
-    await page.goto(`${base}/mine-duel/`);
+    await page.goto(`${base}/mine-duel/`);await tap(page,'[data-language=ko]');
     check(await page.locator('#rules-dialog').evaluate(d=>d.open),'startup modal');
     check(await page.locator('input[value=normal]').isChecked(),'default normal');
     await page.mouse.click(2,2);check(await page.locator('#rules-dialog').evaluate(d=>d.open),'startup outside locked');
@@ -84,7 +84,7 @@ for (const type of [chromium, webkit]) {
     const ctx = await realBrowser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
     const realPage = await ctx.newPage(), realErrors = [];
     realPage.on('pageerror',e=>realErrors.push(String(e)));
-    await realPage.goto(`${base}/mine-duel/`);await tap(realPage,'#rules-action');await tap(realPage,'.cell[data-index="0"]');
+    await realPage.goto(`${base}/mine-duel/`);await tap(realPage,'[data-language=ko]');await tap(realPage,'#rules-action');await tap(realPage,'.cell[data-index="0"]');
     await tap(realPage,'#help');const paused = await state(realPage);
     await new Promise(resolve=>setTimeout(resolve,900));
     check(await state(realPage)===paused,'native timer remains paused during help');
@@ -102,7 +102,7 @@ for (const type of [chromium, webkit]) {
 // Repeat actual turns through touch/mouse UI; accelerate only the clock, not rules.
 const browser=await chromium.launch({headless:true});
 try {
-  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const page=await context.newPage();await page.clock.install();await page.goto(`${base}/web/`);
+  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const page=await context.newPage();await page.clock.install();await page.goto(`${base}/web/`);await tap(page,'[data-language=ko]');
   const rng=seeded(93);
   for(let round=0;round<12;round++) {
     if(round) await tap(page,'#restart');

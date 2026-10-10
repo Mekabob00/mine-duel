@@ -10,3 +10,10 @@ test('CPU help pause preserves remaining delay; restart cancels stale callbacks'
   timer.start(650);timer.clear();assert.equal(events.size,0);assert.equal(fired,1);
   timer.pause();timer.start(650);assert.equal(events.size,0);timer.resume();assert.equal(events.size,1);
 });
+test('generation ignores canceled callbacks even if already queued across pause or restart',()=>{
+  let calls=0; const queue=[];
+  const timer=new PausableTimer(()=>calls++,{now:()=>0,schedule:cb=>{queue.push(cb);return queue.length;},cancel:()=>{}});
+  timer.start(650);const stale=queue[0];timer.pause();timer.resume();stale();assert.equal(calls,0);assert.equal(timer.remaining,650);
+  timer.clear();timer.start(650);queue[1]();assert.equal(calls,0);assert.equal(timer.remaining,650);
+  queue[2]();assert.equal(calls,1);
+});

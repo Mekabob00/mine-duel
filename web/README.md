@@ -1,6 +1,6 @@
 # Mine Duel 웹 버전
 
-HTML/CSS/JavaScript ES Modules로 만든 서버 없는 턴제 지뢰찾기. v0.1.1-web.
+HTML/CSS/JavaScript ES Modules로 만든 서버 없는 턴제 지뢰찾기. v0.2.0-web.
 Unity 1.3의 실제 규칙과 UI를 참고했습니다. 기존 Unity 프로젝트는 수정하지 않았습니다.
 
 ## 로컬 실행
@@ -27,8 +27,10 @@ http://127.0.0.1:4173/web/ 에서 플레이합니다. 파일을 더블클릭하�
 - CPU 탐색/설치/마커 결정에는 Game/Board 참조를 전달하지 않습니다. Game의 private board에서 만든 동결된 관측값만 전달하며 숨겨진 상대 지뢰 소유권이 없습니다.
 - CPU가 지뢰를 밟으면 승리, 플레이어는 패배. 미공개 칸이 모두 마커로 막히면 즉시 무승부. 필수 설치가 불가능해도 무승부. 자기 마커 제거로 설치가 가능하다면 제거 기회를 유지.
 - CPU의 자기 지뢰 회피 때문에 후보가 소진된 경우에도 무승부로 끝냅니다. 이는 Unity에서 사용하던 종료 처리입니다.
-- 시작 안내의 기본 난이도는 보통. 재시작하면 다시 선택 가능. 게임 중 도움말은 난이도 변경 차단, CPU 남은 지연 보존, 바깥 터치/닫기 버튼으로 복귀. 내부 스크롤은 닫기 동작과 분리.
-- native dialog의 모달 입력 차단/포커스 제한, 접근성 이름, 실제 button, 키보드 조작 지원. 결과 화면에서도 규칙 보기 가능.
+- 최초 접속은 언어 선택 → 번역된 규칙 → 난이도 선택 → 게임 시작. 한국어/일본어/영어/중국어 간체를 지원하고 `mineDuel.language`에 선택을 저장합니다. 저장소 접근이 차단되어도 현재 세션은 실행됩니다.
+- 상단 ☰ 메뉴에서 규칙, 재시작 확인, 언어 변경. 게임 중 언어를 바꿔도 보드/난이도/턴/마커 횟수는 유지됩니다. 재시작은 확인 후 새 규칙 안내와 기본 난이도 보통으로 돌아가며 언어를 유지합니다.
+- 모든 팝업은 CPU 남은 지연을 보존하고 보드 입력을 막습니다. 시작 언어/규칙 팝업은 외부 터치로 닫히지 않습니다. 나머지 팝업은 외부 터치/닫기로 복귀하며 내부 스크롤과 구분됩니다. CPU 타이머 세대 번호로 이전 게임의 예약 작업을 무효화합니다.
+- native dialog의 모달 입력 차단/포커스 제한, 접근성 이름, 실제 button, 키보드 조작 지원. 결과 화면에서도 메뉴 접근 가능.
 - Safe Area, visualViewport/dynamic viewport 변화 대응. 작은 세로 화면에서는 보드 크기를 남은 높이에 맞춰 조절합니다. 지나치게 낮은 화면 및 가로 화면은 스크롤을 허용해 칸을 과도하게 축소하지 않습니다.
 - 화면 터치는 touch-action:manipulation으로 더블탭 확대 오조작을 줄입니다. 규칙 본문은 세로 터치 스크롤 가능. 접근성을 위해 핀치 확대를 강제로 막지 않습니다.
 
@@ -43,13 +45,17 @@ npm exec --prefix web -- playwright install chromium webkit
 npm run test:browser --prefix web
 ```
 
-Node 내장 테스트로 규칙, 소유권, 중복 숫자, 마커, 승패/무승부, CPU 정보 차단/난이도/설치 전략, 지연 보존, 배포 파일 연결을 검사합니다.
+Node 내장 테스트 23개로 규칙, 소유권, 중복 숫자, 마커, 승패/무승부, CPU 정보 차단/난이도/설치 전략, 지연 보존/취소된 작업 무효화, 번역 키/치환 인자/저장 예외, 버전 확인/오프라인 처리, 배포 파일 연결을 검사합니다. 1,500판 시뮬레이션도 포함합니다.
 Chromium 및 WebKit의 모바일 터치 에뮬레이션과 PC 화면에서 실제 UI를 검사합니다. 보고서 및 캡처는 로컬 web/test-results/ (Git 제외)에 생성됩니다. 실물 Android/iPhone 검증을 대신하지 않습니다.
 
 ## GitHub Pages
 
 web/은 원본, docs/는 배포본입니다. 로컬에서 `npm run build --prefix web`로 docs를 갱신합니다.
-배포본은 js/css 파일 내용과 의존성에 따라 해시 파일명을 생성하므로 업데이트 시 리소스 캐시 영향을 줄입니다. index.html 캐시가 남아 있으면 페이지를 새로고침하세요. Service Worker는 사용하지 않습니다.
+배포본은 CSS와 모든 ES Module의 내용 및 의존성에 따라 해시 파일명을 생성합니다. 최상위 스크립트뿐 아니라 내부 import URL도 바뀝니다. 이전 해시 파일은 보존하여 캐시된 HTML/모듈이 새 배포 후에도 로딩되게 합니다.
+
+`version.json`은 config의 VERSION에서 자동 생성되며 시작 시, 60초마다, 탭이 다시 보일 때 `cache: no-store`와 고유 쿼리로 확인합니다(5초 제한). 새 버전 안내는 기존 팝업이 닫힌 뒤 표시합니다. 나중에를 선택하면 같은 버전을 이번 세션에 다시 권하지 않으며 게임을 유지합니다. 업데이트를 선택하면 `?v=<배포 버전>` URL로 새로고침하여 HTML 캐시 영향을 줄입니다. 자동 새로고침은 하지 않습니다. 네트워크 오류는 게임에 영향을 주지 않습니다.
+
+GitHub Pages의 HTML 캐시 헤더는 직접 제어할 수 없습니다. 업데이트 전의 v0.1.1 HTML이 이미 캐시된 브라우저는 새 버전 감지 기능이 없으므로 첫 업그레이드 때 일반 새로고침 또는 `?v=0.2.0-web` 접속이 필요할 수 있습니다. Service Worker는 사용하지 않습니다. 오래된 해시 파일은 작고 민감 정보가 없으며, 계속 보존하므로 배포 폴더 크기는 업데이트에 따라 늘어납니다.
 
 저장소 Settings → Pages → Build and deployment → Source를 **GitHub Actions**로 선택하세요.
 포함된 `.github/workflows/pages.yml`은 main push 시 web을 빌드하고 규칙 테스트를 통과한 docs만 배포합니다. Actions 탭에서 수동 실행도 가능합니다.
@@ -60,7 +66,9 @@ Actions 대신 branch 배포를 선택하려면 Source를 Deploy from a branch, 
 
 ## 파일 구조 및 업데이트
 
-- index.html, css/style.css: 한국어 화면, 팝업, 모바일 레이아웃.
+- index.html, css/style.css: 다국어 화면, 팝업, 모바일 레이아웃.
+- js/i18n.js: 네 언어 UI/규칙 번역, 저장 검증, 한국어 fallback. 로컬 개발 서버에서 누락 키 경고.
+- js/updates.js, version.json: 배포 버전 확인과 오류 격리.
 - js/config.js: 웹 버전, 보드 설정, 난이도 확률, 설치 전략 비율.
 - js/board.js: 칸 상태 및 인접 계산. js/game.js: 단일 규칙 모델/턴/종료.
 - js/ai.js: 관측 기반 추론/CPU 선택 및 분리된 실행기.
@@ -76,6 +84,6 @@ Unity 파일, APK, 인증서/키스토어, .codex 원격 첨부, node_modules는
 
 ## MVP 범위
 
-페이지 새로고침 시 새 게임. 저장, 계정, 네트워크 대전, 사운드, Service Worker, 서버/DB는 미구현입니다.
+페이지 새로고침 시 새 게임(언어만 저장). 게임 진행 저장, 계정, 네트워크 대전, 사운드, Service Worker, 서버/DB는 미구현입니다.
 최신 Android Chrome/iOS Safari를 대상으로 하며, native dialog/ES Modules/private class fields 지원이 필요합니다.
 

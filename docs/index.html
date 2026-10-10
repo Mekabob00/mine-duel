@@ -1,58 +1,32 @@
 <!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d1726">
-  <meta name="description" content="탐색하고 지뢰를 놓으며 CPU와 겨루는 턴제 지뢰찾기. 모바일 브라우저에서 바로 플레이하세요.">
-  <title>Mine Duel · 지뢰 대전</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1726'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='44' fill='%2355c7ff'%3E✹%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./css/style.0f100040a169.css">
-  <script type="module" src="./js/main.1833a4eefd75.js"></script>
-</head>
-<body>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1726"><title>Mine Duel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1726'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='44' fill='%2355c7ff'%3E✹%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="./css/style.85c75f59a010.css"><script type="module" src="./js/main.6444c8fada1b.js"></script>
+</head><body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <symbol id="icon-mine" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3M16 8l3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="6" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="#0d1726"/></symbol>
     <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M6 21V3m0 0h13l-3 5 3 5H6" stroke="currentColor" fill="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 21h7" stroke="currentColor" stroke-width="2"/></symbol>
   </svg>
-  <main id="app" class="app">
-    <header class="header">
-      <div class="brand"><span class="eyebrow">턴제 지뢰찾기</span><h1>Mine Duel<span class="brand-dot">.</span></h1></div>
-      <button id="help" class="help" aria-label="게임 규칙 도움말">?</button>
-    </header>
-    <section class="status" aria-label="게임 상태">
-      <div class="status-top"><span id="turn" class="turn">01턴 · 내 차례</span><span id="difficulty" class="difficulty">보통</span></div>
-      <div id="phase" class="phase">게임 준비 · 안전한 시작 칸 선택</div>
-      <div class="metrics"><span id="mine-counts">내 지뢰 0 · CPU 지뢰 0</span><span id="marker-budget">마커 설치 불가</span></div>
-    </section>
-    <section class="board-section" aria-label="게임 보드">
-      <div id="board" class="board" role="group" aria-label="8×8 보드"></div>
-    </section>
-    <div class="legend"><span><i class="swatch player"></i>내 탐색</span><span><i class="swatch cpu"></i>CPU 탐색</span><span class="flag-player">⚑ 내 마커</span><span class="flag-cpu">⚑ CPU 마커</span></div>
-    <p id="feedback" class="feedback" role="status" aria-live="polite">시작할 칸을 선택하세요. 첫 칸은 안전하게 공개됩니다.</p>
-    <nav class="controls" aria-label="게임 조작">
-      <button data-mode="explore" class="control">탐색</button><button data-mode="mine" class="control">지뢰 설치</button>
-      <button data-mode="marker" class="control">마커 설치</button><button data-mode="remove" class="control">마커 제거</button>
-      <button id="end-turn" class="end-turn">턴 종료 <span aria-hidden="true">→</span></button>
-    </nav>
-    <footer class="footer"><span>지뢰 대전</span><span id="version"></span></footer>
-  </main>
-  <dialog id="rules-dialog" class="modal rules-modal" aria-labelledby="rules-title">
-    <div class="modal-heading"><span class="eyebrow">플레이 가이드</span><h2 id="rules-title">지뢰 대전</h2><p>상대의 지뢰를 추리하고<br>마지막까지 살아남으세요!</p></div>
-    <div id="rules-scroll" class="rules-scroll" tabindex="0" aria-label="게임 규칙, 세로 스크롤 가능">
-      <h3>게임 진행</h3><ol><li>플레이어와 CPU가 번갈아 한 칸을 탐색하고 지뢰 하나를 설치합니다.</li><li>지뢰를 밟으면 즉시 패배합니다. <strong>자신이 설치한 지뢰도 위험합니다.</strong></li><li>처음에는 양쪽이 안전한 칸을 하나씩 공개하고 첫 지뢰를 설치합니다. 첫 두 지뢰는 겹치지 않습니다.</li></ol>
-      <h3>숫자와 탐색 색상</h3><ol><li>숫자는 주변 8칸 중 <strong>지뢰가 존재하는 칸의 개수</strong>입니다.</li><li>지뢰가 추가되면 이미 공개된 숫자도 즉시 바뀝니다. 0인 칸도 주변 칸을 자동 공개하지 않습니다.</li><li>파란 칸은 내 탐색, 빨간 칸은 CPU 탐색입니다. 숫자가 바뀌어도 색상은 유지됩니다.</li></ol>
-      <h3>지뢰 설치</h3><ol><li>내 지뢰 위치는 항상 보이고 상대 지뢰는 숨겨져 있습니다.</li><li>일반 턴에는 <strong>상대 지뢰가 있는 칸에도 설치</strong>할 수 있습니다. 내 지뢰가 있는 칸에는 다시 설치할 수 없습니다.</li><li>중복 지뢰도 숫자 계산에서는 1칸으로 셉니다. 숫자가 증가하지 않을 수 있으며 별도 알림은 없습니다.</li><li>공개된 칸이나 마커가 있는 칸에는 설치할 수 없습니다.</li></ol>
-      <h3>마커</h3><ol><li>한 턴에 최대 1개 설치하며 설치는 선택 사항입니다. 탐색 전후와 설치 단계 모두 관리할 수 있습니다.</li><li>양쪽 마커가 공유되며 <strong>내 마커만 제거</strong>할 수 있습니다.</li><li>마커 칸은 탐색과 새 지뢰 설치를 막습니다. 이미 지뢰가 있어도 마커를 설치할 수 있습니다.</li><li>제거해도 이번 턴의 신규 설치 횟수는 회복되지 않습니다.</li></ol>
-      <h3>CPU 난이도</h3><p>쉬움 40% · 보통 20% · 어려움 5%의 확률로 안전한 선택을 놓치고 안전 미확정 칸을 탐색합니다. 실수가 반드시 지뢰를 밟는다는 뜻은 아닙니다. CPU는 자신의 지뢰를 피하며 상대 지뢰 위치를 보지 않습니다.</p>
-      <h3>승리 조건</h3><ul><li>CPU가 지뢰를 밟으면 <strong>승리!</strong></li><li>내가 지뢰를 밟으면 <strong>패배!</strong></li><li>탐색 가능한 칸이 소진되면 무승부입니다. 필수 지뢰 설치가 불가능할 때도 무승부로 끝납니다.</li><li>CPU가 자신의 지뢰 외에 탐색할 수 있는 칸이 없으면 무승부로 끝납니다.</li></ul>
-    </div>
-    <div class="modal-footer">
-      <fieldset id="difficulty-picker"><legend>CPU 난이도</legend><div class="difficulty-options"><label><input type="radio" name="difficulty" value="easy"><span>쉬움<small>실수 40%</small></span></label><label><input type="radio" name="difficulty" value="normal" checked><span>보통<small>실수 20%</small></span></label><label><input type="radio" name="difficulty" value="hard"><span>어려움<small>실수 5%</small></span></label></div></fieldset>
-      <button id="rules-action" class="primary">게임 시작</button>
-    </div>
-  </dialog>
-  <dialog id="result-dialog" class="modal result-modal" aria-labelledby="result-title"><span class="eyebrow">게임 종료</span><h2 id="result-title"></h2><p id="result-reason"></p><p id="result-turns"></p><div class="result-buttons"><button id="restart" class="primary">다시 시작</button><button id="result-help" class="secondary">규칙 보기</button></div></dialog>
-  <noscript>이 게임을 실행하려면 브라우저의 JavaScript를 활성화해 주세요.</noscript>
-</body>
-</html>
+
+<main id="app" class="app">
+<header class="header"><div class="brand"><span class="eyebrow" data-i18n="brand"></span><h1>Mine Duel<span class="brand-dot">.</span></h1></div><button id="help" class="help" data-i18n-aria="menu" aria-haspopup="dialog">☰</button></header>
+<section class="status" data-i18n-aria="status"><div class="status-top"><span id="turn" class="turn"></span><span id="difficulty" class="difficulty"></span></div><div id="phase" class="phase"></div><div class="metrics"><span id="mine-counts"></span><span id="marker-budget"></span></div></section>
+<section class="board-section" data-i18n-aria="board"><div id="board" class="board" role="group" data-i18n-aria="boardSize"></div></section>
+<div class="legend"><span><i class="swatch player"></i><span data-i18n="myExplore"></span></span><span><i class="swatch cpu"></i><span data-i18n="cpuExplore"></span></span><span class="flag-player">⚑ <span data-i18n="ownMarker"></span></span><span class="flag-cpu">⚑ <span data-i18n="cpuMarker"></span></span></div>
+<p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+<nav class="controls" data-i18n-aria="controls"><button class="control" data-mode="explore" data-i18n="explore"></button><button class="control" data-mode="mine" data-i18n="mine"></button><button class="control" data-mode="marker" data-i18n="marker"></button><button class="control" data-mode="remove" data-i18n="remove"></button><button class="end-turn" id="end-turn" data-i18n="endTurn"></button></nav>
+<footer class="footer"><span data-i18n="gameName"></span><span id="version"></span></footer>
+</main>
+<dialog id="language-dialog" class="modal compact-modal" aria-labelledby="language-title"><h2 id="language-title">Select Language</h2><div class="language-options"><button class="secondary" data-language="ko" lang="ko" aria-pressed="false">한국어</button><button class="secondary" data-language="ja" lang="ja" aria-pressed="false">日本語</button><button class="secondary" data-language="en" lang="en" aria-pressed="false">English</button><button class="secondary" data-language="zh-CN" lang="zh-CN" aria-pressed="false">简体中文</button></div><button class="secondary" id="language-close" data-close data-i18n="close"></button></dialog>
+<dialog id="menu-dialog" class="modal compact-modal" aria-labelledby="menu-title"><h2 id="menu-title" data-i18n="menu"></h2><div class="menu-options"><button class="secondary" data-menu="rules" data-i18n="rules"></button><button class="secondary" data-menu="confirm" data-i18n="restart"></button><button class="secondary" data-menu="language" data-i18n="language"></button></div><button class="primary" data-close data-i18n="close"></button></dialog>
+<dialog id="rules-dialog" class="modal rules-modal" aria-labelledby="rules-title">
+<div class="modal-heading"><span class="eyebrow" data-i18n="guide"></span><h2 id="rules-title" data-i18n="gameName"></h2><p data-i18n="intro"></p></div>
+<div id="rules-scroll" class="rules-scroll" tabindex="0" data-i18n-aria="scrollRules"></div>
+<div class="modal-footer"><fieldset id="difficulty-picker"><legend data-i18n="difficultyTitle"></legend><div class="difficulty-options"><label><input type="radio" name="difficulty" value="easy" ><span><span data-i18n="easy"></span><small data-rate="easy"></small></span></label><label><input type="radio" name="difficulty" value="normal" checked><span><span data-i18n="normal"></span><small data-rate="normal"></small></span></label><label><input type="radio" name="difficulty" value="hard" ><span><span data-i18n="hard"></span><small data-rate="hard"></small></span></label></div></fieldset><button class="primary" id="rules-action" data-i18n="start"></button></div></dialog>
+<dialog id="confirm-dialog" class="modal compact-modal" aria-labelledby="confirm-title"><h2 id="confirm-title" data-i18n="restartTitle"></h2><p data-i18n="restartBody"></p><div class="dialog-actions"><button class="secondary" data-close data-i18n="cancel"></button><button class="primary" id="confirm-restart" data-i18n="restart"></button></div></dialog>
+<dialog id="update-dialog" class="modal compact-modal" aria-labelledby="update-title"><h2 id="update-title" data-i18n="updateTitle"></h2><p data-i18n="updateBody"></p><div class="dialog-actions"><button class="secondary" id="update-later" data-i18n="later"></button><button class="primary" id="update-now" data-i18n="update"></button></div></dialog>
+<dialog id="result-dialog" class="modal result-modal" aria-labelledby="result-title"><span class="eyebrow" data-i18n="phase.finished"></span><h2 id="result-title"></h2><p id="result-reason"></p><p id="result-turns"></p><div class="result-buttons"><button class="primary" id="restart" data-i18n="restart"></button><button class="secondary" id="result-help" data-i18n="menu"></button></div></dialog>
+<noscript>JavaScript is required. / JavaScript를 활성화해 주세요. / JavaScriptを有効にしてください。 / 请启用JavaScript。</noscript>
+</body></html>
