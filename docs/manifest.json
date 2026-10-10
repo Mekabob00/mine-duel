@@ -1,16 +1,16 @@
 {
-  "version": "0.1.0-web",
+  "version": "0.1.1-web",
   "files": [
     ".nojekyll",
     "css/style.0f100040a169.css",
     "index.html",
-    "js/ai.d89a3dc3a1e3.js",
-    "js/board.95cef3ba5277.js",
-    "js/config.556ceba9f326.js",
-    "js/game.759f24963f37.js",
-    "js/main.82336c8443d0.js",
-    "js/timer.045c57e1eecb.js",
-    "js/ui.c5deb107d392.js",
+    "js/ai.e69a70522891.js",
+    "js/board.0614a8bc6715.js",
+    "js/config.d83a6b7446e4.js",
+    "js/game.ed2a071ef9cc.js",
+    "js/main.1833a4eefd75.js",
+    "js/timer.d6465aa9f453.js",
+    "js/ui.e4866ae8c5a3.js",
     "manifest.json"
   ]
 }

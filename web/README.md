@@ -1,6 +1,6 @@
 # Mine Duel 웹 버전
 
-HTML/CSS/JavaScript ES Modules로 만든 서버 없는 턴제 지뢰찾기. v0.1.0-web.
+HTML/CSS/JavaScript ES Modules로 만든 서버 없는 턴제 지뢰찾기. v0.1.1-web.
 Unity 1.3의 실제 규칙과 UI를 참고했습니다. 기존 Unity 프로젝트는 수정하지 않았습니다.
 
 ## 로컬 실행
@@ -78,3 +78,4 @@ Unity 파일, APK, 인증서/키스토어, .codex 원격 첨부, node_modules는
 
 페이지 새로고침 시 새 게임. 저장, 계정, 네트워크 대전, 사운드, Service Worker, 서버/DB는 미구현입니다.
 최신 Android Chrome/iOS Safari를 대상으로 하며, native dialog/ES Modules/private class fields 지원이 필요합니다.
+

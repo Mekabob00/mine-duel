@@ -1,6 +1,6 @@
 // Pausing preserves unfinished CPU delay. No callbacks survive restart.
 export class PausableTimer {
-  constructor(callback, { now = () => performance.now(), schedule = setTimeout, cancel = clearTimeout } = {}) {
+  constructor(callback, { now = () => performance.now(), schedule = (cb, ms) => globalThis.setTimeout(cb, ms), cancel = id => globalThis.clearTimeout(id) } = {}) {
     this.callback = callback; this.now = now; this.schedule = schedule; this.cancel = cancel;
     this.id = null; this.remaining = null; this.started = 0; this.paused = false;
   }

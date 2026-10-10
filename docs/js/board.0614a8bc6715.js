@@ -1,4 +1,4 @@
-import { SIDE } from './config.556ceba9f326.js';
+import { SIDE } from './config.d83a6b7446e4.js';
 
 export function neighbors(index, width, height) {
   const result = [], x = index % width, y = Math.floor(index / width);

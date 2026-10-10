@@ -1,5 +1,5 @@
-import { Board } from './board.95cef3ba5277.js';
-import { DEFAULTS, SIDE, PHASE } from './config.556ceba9f326.js';
+import { Board } from './board.0614a8bc6715.js';
+import { DEFAULTS, SIDE, PHASE } from './config.d83a6b7446e4.js';
 
 export class Game {
   #board; #config; #counts = [0, 0]; #opening = [0, 0]; #placed = 0;

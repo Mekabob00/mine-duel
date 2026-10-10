@@ -77,6 +77,28 @@ for(const spec of specs) {
   console.log('PASS',spec.name);
 }
 
+// Browser-native timers must also work: clock shims can conceal WebIDL receiver errors.
+for (const type of [chromium, webkit]) {
+  const realBrowser = await type.launch({headless:true});
+  try {
+    const ctx = await realBrowser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+    const realPage = await ctx.newPage(), realErrors = [];
+    realPage.on('pageerror',e=>realErrors.push(String(e)));
+    await realPage.goto(`${base}/mine-duel/`);await tap(realPage,'#rules-action');await tap(realPage,'.cell[data-index="0"]');
+    await tap(realPage,'#help');const paused = await state(realPage);
+    await new Promise(resolve=>setTimeout(resolve,900));
+    check(await state(realPage)===paused,'native timer remains paused during help');
+    await tap(realPage,'#rules-action');
+    await realPage.waitForFunction(()=>document.querySelector('#phase').textContent.includes('첫 지뢰 설치'));
+    check(await realPage.locator('.revealed-cpu').count()===1,'native CPU reveal resumes');
+    const candidate=await realPage.locator('.cell:not(.revealed-player):not(.revealed-cpu)').first().getAttribute('data-index');
+    await tap(realPage,`.cell[data-index="${candidate}"]`);
+    await realPage.waitForFunction(()=>document.querySelector('#phase').textContent.includes('한 칸 탐색'));
+    check((await realPage.locator('#mine-counts').textContent()).includes('CPU 지뢰 1'),'native CPU mine placement');
+    check(realErrors.length===0,`native timers have no JS error: ${realErrors}`);
+    await ctx.close();
+  } finally {await realBrowser.close();}
+}
 // Repeat actual turns through touch/mouse UI; accelerate only the clock, not rules.
 const browser=await chromium.launch({headless:true});
 try {

@@ -1,5 +1,5 @@
-import { neighbors } from './board.95cef3ba5277.js';
-import { PHASE, SIDE, MINE_STRATEGIES } from './config.556ceba9f326.js';
+import { neighbors } from './board.0614a8bc6715.js';
+import { PHASE, SIDE, MINE_STRATEGIES } from './config.d83a6b7446e4.js';
 
 const pick = (items, rng) => items.length ? items[Math.floor(rng() * items.length)] : -1;
 export class CpuBrain {

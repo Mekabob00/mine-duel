@@ -1,7 +1,7 @@
-import { Game } from './game.759f24963f37.js';
-import { CpuBrain, cpuStep } from './ai.d89a3dc3a1e3.js';
-import { PausableTimer } from './timer.045c57e1eecb.js';
-import { SIDE, PHASE, DIFFICULTIES, DEFAULTS, VERSION, PHASE_LABELS } from './config.556ceba9f326.js';
+import { Game } from './game.ed2a071ef9cc.js';
+import { CpuBrain, cpuStep } from './ai.e69a70522891.js';
+import { PausableTimer } from './timer.d6465aa9f453.js';
+import { SIDE, PHASE, DIFFICULTIES, DEFAULTS, VERSION, PHASE_LABELS } from './config.d83a6b7446e4.js';
 
 const icon = (id, classes = '') => `<svg class="${classes}" aria-hidden="true"><use href="#icon-${id}"></use></svg>`;
 const normalPhases = [PHASE.EXPLORE, PHASE.MINE, PHASE.END];
