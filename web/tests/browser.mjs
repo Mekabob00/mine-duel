@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { seeded } from './helpers.js';
 
 const base=process.env.TEST_URL||'http://127.0.0.1:4173';
+const gameEntry=process.env.TEST_ARTIFACT==='docs'?'/mine-duel/':'/web/';
 const results=fileURLToPath(new URL('../test-results/',import.meta.url));await mkdir(results,{recursive:true});
 let checks=0;const check=(condition,message)=>{checks++;assert.ok(condition,message);};
 const tap=async(page,selector)=> {const element=page.locator(selector).first();await element.tap();if(selector==='#help'||selector==='#result-help') await page.locator('[data-menu=rules]').tap();if(selector==='#restart')await page.locator('#confirm-restart').tap();};
@@ -102,7 +103,7 @@ for (const type of [chromium, webkit]) {
 // Repeat actual turns through touch/mouse UI; accelerate only the clock, not rules.
 const browser=await chromium.launch({headless:true});
 try {
-  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const page=await context.newPage();await page.clock.install();await page.goto(`${base}/web/`);await tap(page,'[data-language=ko]');
+  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const page=await context.newPage();await page.clock.install();await page.goto(`${base}${gameEntry}`);await tap(page,'[data-language=ko]');
   const rng=seeded(93);
   for(let round=0;round<12;round++) {
     if(round) await tap(page,'#restart');

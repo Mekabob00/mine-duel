@@ -2,6 +2,9 @@ export const LANGUAGES = Object.freeze({ ko: '한국어', ja: '日本語', en: '
 export const LANGUAGE_KEY = 'mineDuel.language';
 // Each row is Korean / Japanese / English / Simplified Chinese. Text is rendered as text, never HTML.
 const rows = {
+  inferenceContradiction: ['CPU 추론에 모순이 감지되어 행동을 중단했습니다. 메뉴에서 재시작할 수 있습니다.','CPUの推論に矛盾を検出したため、行動を停止しました。メニューから再スタートできます。','CPU inference is inconsistent. Actions stopped; restart from the menu.','CPU推理出现矛盾，已停止行动。可从菜单重新开始。'],
+  explorationExhausted: ['자기 지뢰를 제외하고 탐색하거나 내 마커를 제거해 확보할 수 있는 칸이 없습니다.','自分の地雷を除き、探索できるマスも自分のマーカー解除で確保できるマスもありません。','No cells remain to explore or recover by removing your markers, excluding your own mines.','排除自身地雷后，已无可探索或通过移除自身标记恢复的格子。'],
+  cpuCertainMines: ['CPU의 탐색 후보가 모두 추론상 지뢰 확정 셀입니다.','CPUの探索候補はすべて推論上の地雷確定マスです。','All CPU exploration candidates are inferred mines.','CPU的探索候选格均被推断为确定有雷。'],
   brand: ['턴제 지뢰찾기','ターン制マインスイーパー','Turn-based minesweeper','回合制扫雷'],
   gameName: ['지뢰 대전','マインデュエル','Mine Duel','地雷对决'],
   menu: ['메뉴','メニュー','Menu','菜单'], rules: ['규칙 설명','ルール','Rules','游戏规则'],
@@ -74,13 +77,13 @@ const ruleRows = [
     ['제거해도 이번 턴의 신규 설치 횟수는 회복되지 않습니다.','解除しても、このターンの設置回数は戻りません。','Removing a marker does not restore this turn’s placement allowance.','移除标记不会恢复本回合的新增标记次数。'],
   ]],
   [['CPU 난이도','CPUの難易度','CPU difficulty','CPU难度'], [
-    ['쉬움 40% · 보통 20% · 어려움 5%의 확률로 안전한 선택을 놓치고 안전 미확정 칸을 탐색합니다. 실수가 반드시 지뢰를 밟는다는 뜻은 아닙니다. CPU는 자신의 지뢰를 피하며 상대 지뢰 위치를 보지 않습니다.','かんたん40%・ふつう20%・むずかしい5%の確率で、安全と確定できないマスを探索します。ミスしても必ず地雷を踏むわけではありません。CPUは自分の地雷を避け、相手の地雷の位置を見ません。','Mistake chances are Easy 40%, Normal 20%, Hard 5%. A mistake chooses a cell not confirmed safe, and may or may not hit a mine. CPU avoids its own mines and never sees your hidden mines.','简单40%·普通20%·困难5%的概率会放弃安全选择，探索未确定安全的格子。失误不一定踩雷。CPU会避开自己的地雷，不会查看对手的隐藏地雷位置。'],
+    ['쉬움 40% · 보통 20% · 어려움 5%의 확률로 안전 확정 칸 대신 불확실 칸을 탐색합니다. 추론상 지뢰 확정 칸은 선택하지 않습니다. 실수가 반드시 지뢰를 밟는다는 뜻은 아닙니다. CPU는 상대 지뢰의 실제 위치를 보지 않습니다.','かんたん40%・ふつう20%・むずかしい5%の確率で、安全確定マスの代わりに不確実なマスを探索します。推論上の地雷確定マスは選びません。ミスしても必ず地雷を踏むわけではありません。CPUは相手の地雷の実際の位置を見ません。','Mistake chances are Easy 40%, Normal 20%, Hard 5%. A mistake chooses an uncertain cell instead of a confirmed safe cell; inferred mines are never chosen. A mistake need not hit a mine. CPU never sees your hidden mine locations.','简单40%·普通20%·困难5%的概率会放弃确定安全的格子，选择不确定格。不会选择推断确定有雷的格子。失误不一定踩雷。CPU不会查看对手地雷的实际位置。'],
   ]],
   [['승리 조건','勝敗の条件','Game results','胜负条件'], [
     ['CPU가 지뢰를 밟으면 승리합니다.','CPUが地雷を踏むと勝利です。','You win if CPU steps on a mine.','CPU踩雷则你获胜。'],
     ['내가 지뢰를 밟으면 패배합니다.','自分が地雷を踏むと敗北です。','You lose if you step on a mine.','你踩雷则失败。'],
     ['탐색 가능한 칸이 소진되면 무승부입니다. 필수 지뢰 설치가 불가능할 때도 무승부로 끝납니다.','探索できるマスがなくなると引き分けです。必要な地雷を設置できない場合も引き分けです。','The game ends in a draw when exploration is exhausted or required mine placement is impossible.','没有可探索的格子，或无法完成必须的地雷放置时，游戏以平局结束。'],
-    ['CPU가 자신의 지뢰 외에 탐색할 수 있는 칸이 없으면 무승부로 끝납니다.','CPUが自分の地雷を避けて探索できるマスがない場合も引き分けです。','It is also a draw if CPU has no cells to explore while avoiding its own mines.','CPU没有可避开自身地雷进行探索的格子时，也以平局结束。'],
+    ['현재 행동자가 자기 지뢰를 제외하고 탐색할 칸도 자기 마커를 제거해 복구할 칸도 없으면 무승부입니다. 모든 미공개 셀이 마커로 막히면 제거 가능 여부와 관계없이 즉시 무승부입니다. CPU 후보가 모두 추론상 지뢰 확정 셀이면 무승부입니다.','現在の手番で自分の地雷を除いた探索候補も、自分のマーカー解除で復元できる候補もなければ引き分けです。全未公開マスがマーカーで塞がれた場合は解除可否にかかわらず即引き分けです。CPUの候補がすべて推論上の地雷確定マスの場合も引き分けです。','A draw occurs when the current side has no exploration candidates excluding its own mines, even after removing its markers. If every hidden cell is marked, the draw is immediate regardless of removable markers. CPU also draws when all its candidates are inferred mines.','当前行动方排除自身地雷后没有可探索格，且移除自身标记也无法恢复时为平局。全部未揭开格均被标记时，无论能否移除都立即平局。CPU候选全部为推断确定有雷格时也为平局。'],
   ]],
 ];
 ruleRows.forEach(([title, items], section) => {

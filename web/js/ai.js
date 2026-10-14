@@ -20,6 +20,7 @@ export class CpuBrain {
           else if (!board.cells[n].revealed && !safe.has(n)) unknown.push(n);
         }
         const remaining = c.number - known;
+        if (remaining < 0 || remaining > unknown.length) throw new Error('inferenceContradiction');
         const destination = remaining === 0 ? safe : remaining === unknown.length ? dangerous : null;
         if (destination) for (const n of unknown) if (!destination.has(n)) { destination.add(n); changed = true; }
       });
@@ -27,8 +28,10 @@ export class CpuBrain {
     return { safe, dangerous };
   }
   chooseExplore(board) {
-    const { safe } = this.deduce(board);
-    const candidates = board.cells.flatMap((c, i) => !c.revealed && !c.ownMine && !c.marker ? [i] : []);
+    const { safe, dangerous } = this.deduce(board);
+    for (const index of safe) if (dangerous.has(index)) throw new Error('inferenceContradiction');
+    // Neither a normal choice nor a mistake may target an inferred mine.
+    const candidates = board.cells.flatMap((c, i) => !c.revealed && !c.ownMine && !c.marker && !dangerous.has(i) ? [i] : []);
     if (board.phase === PHASE.EXPLORE && this.mistakeRandom() < this.chance) {
       const uncertain = candidates.filter(i => !safe.has(i));
       if (uncertain.length) return pick(uncertain, this.mistakeRandom);
@@ -71,6 +74,7 @@ export function cpuStep(game, brain) {
   if ([PHASE.OPEN_REVEAL, PHASE.EXPLORE].includes(game.phase)) {
     const target = brain.chooseExplore(board);
     if (target >= 0) return game.explore(SIDE.CPU, target);
+    if (game.resolveCpuNoExploration(brain.deduce(board).dangerous)) return { ok: true, message: game.reason };
     const marker = brain.ownMarkerToRemove(board);
     if (marker >= 0) return game.removeMarker(SIDE.CPU, marker);
     game.resolveCpuNoExploration(); return { ok: true, message: game.reason };

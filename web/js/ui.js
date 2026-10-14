@@ -146,7 +146,13 @@ export class GameUI {
   #scheduleCpu() { if (this.#game.current === SIDE.CPU && this.#game.phase !== PHASE.FINISHED && this.#timer.remaining === null) this.#timer.start(DEFAULTS.cpuDelay); }
   #cpuAction() {
     if (this.#modal || !this.#brain || this.#game.current !== SIDE.CPU || this.#game.phase === PHASE.FINISHED) return;
-    this.#feedback = cpuStep(this.#game,this.#brain).message || this.#feedback; this.#autoMode(); this.render(); this.#scheduleCpu();
+    try { this.#feedback = cpuStep(this.#game,this.#brain).message || this.#feedback; }
+    catch (error) {
+      if (error.message !== 'inferenceContradiction') throw error;
+      // An invalid inference is an explicit error, never an invented win/draw rule.
+      this.#timer.clear(); this.#timer.pause(); this.#feedback = 'inferenceContradiction'; this.render(); return;
+    }
+    this.#autoMode(); this.render(); this.#scheduleCpu();
   }
   render() {
     this.#localize();

@@ -78,14 +78,34 @@ export class Game {
     if (this.#phase === PHASE.FINISHED) return;
     const hidden = this.#board.cells.filter(c => !c.revealed);
     if (!hidden.some(c => !c.marker)) return this.#finish('draw', 'noExplore');
+    if (this.#phase === PHASE.EXPLORE) {
+      const { candidates, removableMarkers } = this.explorationOptions(this.#current);
+      if (!candidates.length && !removableMarkers.length) return this.#finish('draw', 'explorationExhausted');
+    }
     const restorable = hidden.filter(c => !c.marker || c.marker === this.#current);
     if ([PHASE.MINE, PHASE.OPEN_MINE].includes(this.#phase) && !restorable.some(c => this.#canMine(c, this.#current)))
       this.#finish('draw', 'noMine');
   }
-  resolveCpuNoExploration() {
+  explorationOptions(side = this.#current) {
+    if (side !== SIDE.PLAYER && side !== SIDE.CPU) throw new Error('invalidViewer');
+    const candidates = [], removableMarkers = [];
+    this.#board.cells.forEach((c, index) => {
+      // Enemy ownership is deliberately irrelevant to progress eligibility.
+      if (c.revealed || this.#board.owns(c, side)) return;
+      if (!c.marker) candidates.push(index);
+      else if (c.marker === side) removableMarkers.push(index);
+    });
+    return Object.freeze({ candidates: Object.freeze(candidates), removableMarkers: Object.freeze(removableMarkers) });
+  }
+  resolveCpuNoExploration(inferredMines = new Set()) {
     if (this.#current !== SIDE.CPU || this.#phase !== PHASE.EXPLORE) return false;
-    if (this.#board.cells.some(c => !c.revealed && !this.#board.owns(c, SIDE.CPU) && (!c.marker || c.marker === SIDE.CPU))) return false;
-    this.#finish('draw', 'cpuNoExplore'); return true;
+    this.#checkProgress();
+    if (this.#phase === PHASE.FINISHED) return true;
+    const { candidates } = this.explorationOptions(SIDE.CPU);
+    if (candidates.length && candidates.every(index => inferredMines.has(index))) {
+      this.#finish('draw', 'cpuCertainMines'); return true;
+    }
+    return false;
   }
   observe(viewer) {
     if (viewer !== SIDE.PLAYER && viewer !== SIDE.CPU) throw new Error('invalidViewer');

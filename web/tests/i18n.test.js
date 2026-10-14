@@ -36,17 +36,17 @@ test('stored language validation and unavailable localStorage', () => {
   assert.equal(loadLanguage(broken),null); assert.doesNotThrow(()=>saveLanguage(broken,'en')); assert.equal(loadLanguage(null),null);
 });
 test('release checker uses relative no-store request, defers duplicates and survives offline/malformed data', async () => {
-  const notices=[],requests=[]; let release='0.2.1-web', fail=false, bad=false;
+  const notices=[],requests=[]; let release='0.2.2-web', fail=false, bad=false;
   const checker = new UpdateChecker(v=>notices.push(v),{base:'https://example.org/mine-duel/',fetcher:async(url,options)=>{
     requests.push({url,options}); if(fail) throw Error('offline');
     return {ok:true,json:async()=>bad?{}:{version:release}};
   }});
-  await checker.check(); assert.deepEqual(notices,['0.2.1-web']); assert.equal(requests[0].options.cache,'no-store');
+  await checker.check(); assert.deepEqual(notices,['0.2.2-web']); assert.equal(requests[0].options.cache,'no-store');
   assert.equal(new URL(requests[0].url).pathname,'/mine-duel/version.json');
   checker.dismiss(release); await checker.check(); assert.equal(notices.length,1);
   fail=true; await checker.check(); fail=false;bad=true;await checker.check();bad=false;
   release=VERSION;await checker.check();assert.equal(notices.length,1);
-  release='0.2.2-web';await checker.check();assert.equal(notices.length,2);
+  release='0.2.3-web';await checker.check();assert.equal(notices.length,2);
 });
 test('release document and immutable old/new module graphs are deployed together', async () => {
   const root = new URL('../../docs/',import.meta.url);
