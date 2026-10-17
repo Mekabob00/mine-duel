@@ -30,14 +30,14 @@ export class CpuBrain {
   chooseExplore(board) {
     const { safe, dangerous } = this.deduce(board);
     for (const index of safe) if (dangerous.has(index)) throw new Error('inferenceContradiction');
-    // Neither a normal choice nor a mistake may target an inferred mine.
-    const candidates = board.cells.flatMap((c, i) => !c.revealed && !c.ownMine && !c.marker && !dangerous.has(i) ? [i] : []);
+    const all = board.cells.flatMap((c, i) => !c.revealed && !c.ownMine && !c.marker ? [i] : []);
+    const candidates = all.filter(i => !dangerous.has(i));
     if (board.phase === PHASE.EXPLORE && this.mistakeRandom() < this.chance) {
       const uncertain = candidates.filter(i => !safe.has(i));
       if (uncertain.length) return pick(uncertain, this.mistakeRandom);
     }
     const certain = candidates.filter(i => safe.has(i));
-    return pick(certain.length ? certain : candidates, this.random);
+    return pick(certain.length ? certain : candidates.length ? candidates : all, this.random);
   }
   mineProposals(board) {
     // Only own mines are excluded. Enemy-only mines are invisible and eligible.
@@ -73,11 +73,16 @@ export function cpuStep(game, brain) {
   const board = game.observe(SIDE.CPU);
   if ([PHASE.OPEN_REVEAL, PHASE.EXPLORE].includes(game.phase)) {
     const target = brain.chooseExplore(board);
-    if (target >= 0) return game.explore(SIDE.CPU, target);
-    if (game.resolveCpuNoExploration(brain.deduce(board).dangerous)) return { ok: true, message: game.reason };
+    if (target >= 0) {
+      // Forced-mine position: use the remaining marker allowance before exploring.
+      // This recovery is deterministic; the end-turn marker probability is separate.
+      if (game.phase === PHASE.EXPLORE && board.markersUsed < board.markerLimit && brain.deduce(board).dangerous.has(target))
+        return game.addMarker(SIDE.CPU, target);
+      return game.explore(SIDE.CPU, target);
+    }
     const marker = brain.ownMarkerToRemove(board);
     if (marker >= 0) return game.removeMarker(SIDE.CPU, marker);
-    game.resolveCpuNoExploration(); return { ok: true, message: game.reason };
+    return { ok: false, message: 'invalidExplore' };
   }
   if ([PHASE.OPEN_MINE, PHASE.MINE].includes(game.phase)) {
     for (const target of brain.mineProposals(board)) {

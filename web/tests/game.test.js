@@ -5,12 +5,12 @@ import { SIDE as S, PHASE as P, DIFFICULTIES } from '../js/config.js';
 import { CpuBrain, cpuStep } from '../js/ai.js';
 import { started, seeded } from './helpers.js';
 
-test('opening: safe cells, distinct first mines, actors and phase restrictions', () => {
+test('opening: safe cells, overlapping first mines, actors and phase restrictions', () => {
   const g = new Game(); assert.equal(g.placeMine(S.PLAYER,1).ok,false);
   assert.equal(g.explore(S.CPU,0).ok,false); assert.equal(g.explore(S.PLAYER,0).ok,true);
   assert.equal(g.explore(S.CPU,0).ok,false); g.explore(S.CPU,63);
   assert.equal(g.placeMine(S.PLAYER,0).ok,false); g.placeMine(S.PLAYER,1);
-  assert.equal(g.placeMine(S.CPU,1).ok,false); g.placeMine(S.CPU,62);
+  assert.equal(g.placeMine(S.CPU,1).ok,true);
   assert.equal(g.phase,P.EXPLORE); assert.equal(g.current,S.PLAYER);
   assert.equal(g.observe(S.PLAYER).cells[0].revealedBy,S.PLAYER);
   assert.equal(g.observe(S.PLAYER).cells[63].revealedBy,S.CPU);
@@ -50,16 +50,13 @@ test('markers block both actions; removal does not refund quota; ownership enfor
   assert.equal(g.removeMarker(S.PLAYER,31).ok,false); assert.equal(g.explore(S.PLAYER,31).ok,false);
   assert.equal(g.addMarker(S.PLAYER,20).ok,false);
 });
-test('own, enemy and shared mines are lethal, with terminal input blocked', () => {
-  for (const cell of [1,62]) {
-    const g = started(); g.explore(S.PLAYER,cell); assert.equal(g.result,'loss');
-    assert.equal(g.explore(S.PLAYER,20).ok,false); assert.equal(g.addMarker(S.PLAYER,30).ok,false);
-  }
-  const shared = started(); shared.explore(S.PLAYER,61); shared.placeMine(S.PLAYER,62); shared.endTurn(S.PLAYER);
-  shared.explore(S.CPU,62); assert.equal(shared.result,'win');
-  const own = started(); own.explore(S.PLAYER,20); own.placeMine(S.PLAYER,21); own.endTurn(S.PLAYER);
-  own.explore(S.CPU,62); assert.equal(own.result,'win');
+test('own and shared mines reject input; enemy mines are lethal with terminal input blocked',()=>{
+  const own=started(),before=own.observe(S.PLAYER);assert.equal(own.explore(S.PLAYER,1).ok,false);assert.deepEqual(own.observe(S.PLAYER),before);
+  const enemy=started();enemy.explore(S.PLAYER,62);assert.equal(enemy.result,'loss');assert.equal(enemy.explore(S.PLAYER,20).ok,false);assert.equal(enemy.addMarker(S.PLAYER,30).ok,false);
+  const shared=started();shared.explore(S.PLAYER,61);shared.placeMine(S.PLAYER,62);shared.endTurn(S.PLAYER);const b=shared.observe(S.CPU);assert.equal(shared.explore(S.CPU,62).ok,false);assert.deepEqual(shared.observe(S.CPU),b);
+  assert.equal(shared.explore(S.CPU,1).ok,true);assert.equal(shared.result,'win');
 });
+
 test('draw when all hidden cells are marked', () => {
   const g = started({initialMines:0,markersPerTurn:62});
   for(let i=1;i<63;i++) g.addMarker(S.PLAYER,i);
@@ -99,9 +96,7 @@ test('1500 seeded complete games finish with each CPU difficulty', () => {
       if(!options.length) {
         const marked=board.cells.findIndex(c=>c.marker===S.PLAYER&&!c.ownMine);
         if(marked>=0) {g.removeMarker(S.PLAYER,marked);continue;}
-        // Human can still choose their own mine, as required by rules.
-        const own=board.cells.findIndex(c=>!c.revealed&&!c.marker);
-        assert.ok(own>=0);g.explore(S.PLAYER,own);continue;
+        assert.fail('Common exhaustion must finish before scheduling an action with no candidate or recovery');
       }
       const target=options[Math.floor(rng()*options.length)];
       if([P.OPEN_REVEAL,P.EXPLORE].includes(g.phase)) g.explore(S.PLAYER,target); else g.placeMine(S.PLAYER,target);

@@ -51,12 +51,12 @@ test('Q02 CPU marker recovery is finite and does not refund its quota',()=>{
   const g=started({width:3,height:2,markersPerTurn:2});g.explore(S.PLAYER,2);g.placeMine(S.PLAYER,3);g.endTurn(S.PLAYER);
   g.addMarker(S.CPU,1);g.addMarker(S.CPU,3);assert.equal(g.result,null);
   cpuStep(g,new CpuBrain(0));assert.equal(g.observe(S.CPU).cells[1].marker,null);assert.equal(g.observe(S.CPU).markersUsed,2);
-  assert.equal(g.phase,P.EXPLORE);cpuStep(g,new CpuBrain(0));assert.equal(g.result,'draw');assert.equal(g.reason,'cpuCertainMines');
+  assert.equal(g.phase,P.EXPLORE);cpuStep(g,new CpuBrain(0));assert.equal(g.result,'win');assert.equal(g.reason,'cpuHit');
 });
 test('Q02 own-marker-on-own-mine is not a recoverable exploration cell',()=>{
   const g=started();g.addMarker(S.PLAYER,1);
   assert.ok(!g.explorationOptions(S.PLAYER).removableMarkers.includes(1));
-  g.removeMarker(S.PLAYER,1);g.explore(S.PLAYER,1);assert.equal(g.result,'loss');
+  g.removeMarker(S.PLAYER,1);const before=g.observe(S.PLAYER);assert.equal(g.explore(S.PLAYER,1).ok,false);assert.deepEqual(g.observe(S.PLAYER),before);
 });
 test('Q02 hidden enemy layouts cannot affect progress candidates',()=>{
   for(const viewer of [S.PLAYER,S.CPU]){
@@ -86,24 +86,15 @@ test('Q03 uncertain fallback and safe fallback ignore definite mines',()=>{
   const uncertainOnly={...b,cells:b.cells.map((c,i)=>({...c,marker:d.safe.has(i)?S.PLAYER:null}))};
   const choice=new CpuBrain(0,()=>0).chooseExplore(uncertainOnly);assert.ok(choice>=0&&!d.safe.has(choice)&&!d.dangerous.has(choice));
 });
-test('Q03 all inferred-mine candidates ends without exploring or repeating CPU actions',()=>{
+test('Fix03 all inferred candidates use marker then force actual exploration instead of CPU-only draw',()=>{
   const g=started({width:3,height:2});g.explore(S.PLAYER,2);g.placeMine(S.PLAYER,3);g.endTurn(S.PLAYER);
-  const brain=new CpuBrain(1), before=g.observe(S.CPU);assert.equal(brain.chooseExplore(before),-1);
-  assert.equal(g.result,null);cpuStep(g,brain);assert.equal(g.result,'draw');assert.equal(g.reason,'cpuCertainMines');
-  assert.deepEqual(g.observe(S.CPU).cells,before.cells);assert.equal(g.observe(S.CPU).exploded,-1);
-  assert.equal(cpuStep(g,brain).ok,false);assert.equal(g.explore(S.CPU,1).ok,false);
+  const brain=new CpuBrain(0,()=>0,()=>0);assert.equal(g.result,null);assert.ok(brain.chooseExplore(g.observe(S.CPU))>=0);
+  cpuStep(g,brain);assert.equal(g.observe(S.CPU).markersUsed,1);assert.equal(g.result,null);
+  cpuStep(g,brain);assert.equal(g.result,'win');assert.equal(g.reason,'cpuHit');assert.equal(cpuStep(g,brain).ok,false);
 });
-test('Q03 immediate draw takes priority over removing an own marker on a confirmed safe cell',()=>{
-  const g=started({width:4,height:2,markersPerTurn:2});
-  g.explore(S.PLAYER,4);g.placeMine(S.PLAYER,5);g.endTurn(S.PLAYER);
-  g.addMarker(S.CPU,2);g.addMarker(S.CPU,3);
-  const brain=new CpuBrain(1), before=g.observe(S.CPU), inference=brain.deduce(before);
-  assert.ok(inference.safe.has(2)&&inference.safe.has(3));
-  assert.deepEqual(g.explorationOptions(S.CPU).removableMarkers,[2,3]);
-  assert.ok(g.explorationOptions(S.CPU).candidates.every(i=>inference.dangerous.has(i)));
-  cpuStep(g,brain);assert.equal(g.result,'draw');assert.equal(g.reason,'cpuCertainMines');
-  assert.deepEqual(g.observe(S.CPU).cells,before.cells);assert.equal(g.observe(S.CPU).markersUsed,2);
-  assert.equal(g.removeMarker(S.CPU,2).ok,false);
+test('Fix03 exhausted marker allowance forces exploration even if another own marker could recover a safe cell',()=>{
+  const g=started({width:4,height:2,markersPerTurn:2});g.explore(S.PLAYER,4);g.placeMine(S.PLAYER,5);g.endTurn(S.PLAYER);g.addMarker(S.CPU,2);g.addMarker(S.CPU,3);
+  const brain=new CpuBrain(0,()=>0,()=>0),before=g.observe(S.CPU);assert.deepEqual(g.explorationOptions(S.CPU).removableMarkers,[2,3]);cpuStep(g,brain);assert.equal(g.result,'win');assert.equal(g.reason,'cpuHit');assert.equal(g.observe(S.CPU).markersUsed,2);assert.equal(g.observe(S.CPU).cells[2].marker,S.CPU);assert.equal(g.removeMarker(S.CPU,2).ok,false);
 });
 test('Q03 inconsistent constraints raise an explicit error, not a random exploration',()=>{
   const b={width:2,height:2,phase:P.EXPLORE,cells:[{revealed:true,number:0},{revealed:false},{revealed:false},{revealed:true,number:1}]};

@@ -50,7 +50,7 @@ for(const spec of specs) {
     await page.clock.runFor(600);
     check(await page.locator('.revealed-cpu').count()===1,'CPU initial reveal');
     check(await page.locator('.revealed-cpu').evaluate(e=>getComputedStyle(e).backgroundColor)==='rgb(255, 189, 189)','CPU red');
-    // Place own opening mine and intentionally trigger it. Full UI route, not a mocked game.
+    // Place own opening mine and verify that exploration is rejected. Full UI route, not a mocked game.
     const safeMine=await page.locator('.cell:not(.revealed-player):not(.revealed-cpu)').first().getAttribute('data-index');
     await tap(page,`.cell[data-index="${safeMine}"]`);await page.clock.runFor(800);
     check(await page.locator('.own-mine').count()===1,'own mine shown');
@@ -60,10 +60,10 @@ for(const spec of specs) {
     await page.screenshot({path:`${results}/${spec.name}-board.png`});
     await tap(page,'#help');const preserved=await state(page);await tap(page,'#rules-action');check(await state(page)===preserved,'close button preserves state');
     await tap(page,`.cell[data-index="${safeMine}"]`);
-    check((await page.locator('#result-title').textContent())==='패배!','own-mine loss modal');
-    check(await page.locator('#board button:enabled').count()===0,'terminal board disabled');
-    await tap(page,'#result-help');check(await page.locator('#rules-dialog').evaluate(d=>d.open),'help available after result');await tap(page,'#rules-action');
-    await tap(page,'#restart');check(await page.locator('#rules-dialog').evaluate(d=>d.open),'restart startup');check(await page.locator('input[value=normal]').isChecked(),'restart default');
+    const ownBefore=await state(page);await tap(page,`.cell[data-index="${safeMine}"]`);check((await state(page)).split('|').filter((_,i)=>i!==4).join('|')===ownBefore.split('|').filter((_,i)=>i!==4).join('|'),'own mine input rejected without state mutation');
+    check(!await page.locator('#result-dialog').evaluate(d=>d.open),'own mine is not lethal');
+    await page.locator('#help').tap();await tap(page,'[data-menu=confirm]');await tap(page,'#confirm-restart');
+    check(await page.locator('#rules-dialog').evaluate(d=>d.open),'restart startup');check(await page.locator('input[value=normal]').isChecked(),'restart default');
     // Fit remains valid when browser toolbar contracts the visual viewport.
     if(spec.width<600) {await page.setViewportSize({width:spec.width,height:spec.height-50});await page.clock.runFor(100);await page.screenshot({path:`${results}/${spec.name}-resize.png`});const r=await page.locator('#rules-dialog').boundingBox();check(r.y>=0&&r.y+r.height<=spec.height-49,'toolbar resize popup fits');await page.setViewportSize({width:spec.width,height:spec.height});}
     check(errors.length===0,`no resource/JS errors ${errors}`);

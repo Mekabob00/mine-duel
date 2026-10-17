@@ -19,12 +19,12 @@ export class Game {
   #active(side) { return (side === SIDE.PLAYER || side === SIDE.CPU) && side === this.#current && this.#phase !== PHASE.FINISHED; }
   #normal() { return [PHASE.EXPLORE, PHASE.MINE, PHASE.END].includes(this.#phase); }
   #cell(index) { return Number.isInteger(index) ? this.#board.cells[index] : null; }
-  #canMine(cell, side) { return !this.#board.owns(cell, side) && (this.#phase !== PHASE.OPEN_MINE || !cell.owners); }
+  #canMine(cell, side) { return !this.#board.owns(cell, side); }
   #reply(ok, message) { return { ok, message }; }
   #finish(result, reason) { this.#result = result; this.#reason = reason; this.#phase = PHASE.FINISHED; }
   explore(side, index) {
     const c = this.#cell(index);
-    if (!this.#active(side) || ![PHASE.EXPLORE, PHASE.OPEN_REVEAL].includes(this.#phase) || !c || c.revealed || c.marker)
+    if (!this.#active(side) || ![PHASE.EXPLORE, PHASE.OPEN_REVEAL].includes(this.#phase) || !c || c.revealed || c.marker || this.#board.owns(c, side))
       return this.#reply(false, 'invalidExplore');
     if (c.owners) {
       this.#exploded = index;
@@ -96,16 +96,6 @@ export class Game {
       else if (c.marker === side) removableMarkers.push(index);
     });
     return Object.freeze({ candidates: Object.freeze(candidates), removableMarkers: Object.freeze(removableMarkers) });
-  }
-  resolveCpuNoExploration(inferredMines = new Set()) {
-    if (this.#current !== SIDE.CPU || this.#phase !== PHASE.EXPLORE) return false;
-    this.#checkProgress();
-    if (this.#phase === PHASE.FINISHED) return true;
-    const { candidates } = this.explorationOptions(SIDE.CPU);
-    if (candidates.length && candidates.every(index => inferredMines.has(index))) {
-      this.#finish('draw', 'cpuCertainMines'); return true;
-    }
-    return false;
   }
   observe(viewer) {
     if (viewer !== SIDE.PLAYER && viewer !== SIDE.CPU) throw new Error('invalidViewer');

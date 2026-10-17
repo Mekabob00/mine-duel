@@ -45,9 +45,9 @@ test('mine strategy first picks follow 60/25/15 selection and missing pool fallb
   assert.ok(new CpuBrain(0,()=>0.75).mineProposals(empty).length,'recent missing => global');
   assert.ok(new CpuBrain(0,()=>0.95).mineProposals(empty).length,'no revealed => global');
 });
-test('initial hidden collision handled by arbiter; shared normal CPU placement permitted',()=>{
+test('initial and normal CPU overlapping placement is permitted',()=>{
   const g=new Game();g.explore(SIDE.PLAYER,0);g.explore(SIDE.CPU,63);g.placeMine(SIDE.PLAYER,1);
-  const brain={mineProposals:()=>[1,62]};assert.equal(cpuStep(g,brain).ok,true);assert.equal(g.observe(SIDE.CPU).cells[62].ownMine,true);
+  const brain={mineProposals:()=>[1,62]};assert.equal(cpuStep(g,brain).ok,true);assert.equal(g.observe(SIDE.CPU).cells[1].ownMine,true);
   g.explore(SIDE.PLAYER,20);g.placeMine(SIDE.PLAYER,21);g.endTurn(SIDE.PLAYER);g.explore(SIDE.CPU,40);
   const before=g.observe(SIDE.CPU).cells[20].number;cpuStep(g,{mineProposals:()=>[21]});
   assert.equal(g.observe(SIDE.CPU).cells[21].ownMine,true);assert.equal(g.observe(SIDE.PLAYER).cells[21].ownMine,true);assert.equal(g.observe(SIDE.CPU).cells[20].number,before);
