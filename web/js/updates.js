@@ -1,14 +1,26 @@
 import { VERSION } from './config.js';
 
+export function isNewerVersion(candidate, current) {
+  const parts = value => {
+    if (typeof value !== 'string' || !/^\d+\.\d+\.\d+-web$/.test(value)) return null;
+    const values = value.slice(0, -4).split('.').map(Number);
+    return values.every(Number.isSafeInteger) ? values : null;
+  };
+  const next = parts(candidate), running = parts(current);
+  if (!next || !running) return false;
+  for (let i = 0; i < 3; i++) if (next[i] !== running[i]) return next[i] > running[i];
+  return false;
+}
+
 // No worker/cache dependency. Failure to check a release must never interrupt a game.
 export class UpdateChecker {
-  constructor(onUpdate, { fetcher = (...args) => globalThis.fetch(...args), current = VERSION, base = globalThis.location?.href, timeout = 5000 } = {}) {
+  constructor(onUpdate, { fetcher = (...args) => globalThis.fetch(...args), current = VERSION, base = globalThis.location?.href, timeout = 5000, online = () => globalThis.navigator?.onLine !== false } = {}) {
     this.onUpdate = onUpdate; this.fetcher = fetcher; this.current = current; this.base = base; this.timeout = timeout;
-    this.busy = false; this.dismissed = new Set();
+    this.busy = false; this.dismissed = new Set(); this.online = online;
   }
   dismiss(version) { this.dismissed.add(version); }
   async check() {
-    if (this.busy) return;
+    if (this.busy || !this.online()) return;
     this.busy = true;
     const controller = new AbortController();
     const timer = globalThis.setTimeout(() => controller.abort(), this.timeout);
@@ -17,7 +29,7 @@ export class UpdateChecker {
       const response = await this.fetcher(url.href, { cache: 'no-store', signal: controller.signal });
       if (!response.ok) return;
       const { version } = await response.json();
-      if (typeof version === 'string' && /^\d+\.\d+\.\d+-web$/.test(version) && version !== this.current && !this.dismissed.has(version)) this.onUpdate(version);
+      if (isNewerVersion(version, this.current) && !this.dismissed.has(version)) this.onUpdate(version);
     } catch { /* Offline, timeouts and invalid release data leave gameplay intact. */ }
     finally { globalThis.clearTimeout(timer); this.busy = false; }
   }
