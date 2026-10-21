@@ -66,7 +66,7 @@ fieldset { border:0; margin:0; padding:0; }legend { padding:0 0 8px; font-size:1
 .difficulty-options small { font-size:10px; margin-top:4px; color:#a6b9cc; }
 .primary,.secondary { width:100%; min-height:46px; border-radius:9px; font-size:14px; font-weight:650; background:#1c749c; }
 .secondary { background:#293b52; color:#b9c7d9; }
-.result-modal { text-align:center; padding:32px 24px; }.result-modal h2 { font-size:38px; margin-top:12px; }.result-modal p { font-size:14px; line-height:1.6; color:#b8c6d9; }.result-buttons { display:grid; gap:8px; margin-top:20px; }
+.result-modal { overflow-y:auto; overscroll-behavior:contain; text-align:center; padding:32px 24px; }.result-modal h2 { font-size:38px; margin-top:12px; }.result-modal p { font-size:14px; line-height:1.6; color:#b8c6d9; }.result-buttons { display:grid; gap:8px; margin-top:20px; }
 .compact-modal[open] { display:flex; flex-direction:column; gap:16px; overflow-y:auto; overscroll-behavior:contain; }
 .compact-modal p { white-space:pre-line; line-height:1.6; margin:0; font-size:14px; }
 .language-options,.menu-options { display:grid; gap:10px; }

@@ -1,4 +1,13 @@
 const rows = {
+  viewBoard: ['보드 보기','盤面を見る','View board','查看棋盘'],
+  viewResults: ['결과 보기','結果を見る','View results','查看结果'],
+  winTurns: ['{turns}턴 만에 승리','{turns}ターンで勝利','Victory in {turns} turns','{turns}回合获胜'],
+  lossTurns: ['{turns}턴 만에 패배','{turns}ターンで敗北','Defeat in {turns} turns','{turns}回合落败'],
+  totalTurns: ['총 진행 턴 수 · {turns}','総ターン数 · {turns}','Total turns · {turns}','总回合数 · {turns}'],
+  winTime: ['승리까지의 시간 · {time}','勝利までの時間 · {time}','Time to victory · {time}','获胜用时 · {time}'],
+  matchTime: ['대전 시간 · {time}','対戦時間 · {time}','Match time · {time}','对局用时 · {time}'],
+  recordUnavailable: ['이전 버전의 기록 정보 없음','旧バージョンの記録なし','Record unavailable for this older match','旧版本对局无记录'],
+
   online: ['온라인 대전','オンライン対戦','Online duel','在线对战'],
   create: ['방 만들기','ルーム作成','Create room','创建房间'], join: ['방 참가','ルーム参加','Join room','加入房间'],
   code: ['방 코드','ルームコード','Room code','房间代码'], invite: ['초대 URL 복사','招待URLをコピー','Copy invite link','复制邀请链接'],

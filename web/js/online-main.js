@@ -1,7 +1,9 @@
+import { resultLines } from './result.js';
 import { OnlineClient } from './online-client.js';
 import { ot } from './online-i18n.js';
 import { VERSION } from './config.js';
 import { loadLanguage, saveLanguage } from './i18n.js';
+let boardReview = false, reviewGameId = null;
 let storage; try { storage = localStorage; } catch {}
 let lang = loadLanguage(storage) || 'ko', mode = 'explore', lastPhase = '', lastTurn = '', leaving = false, flash = '', pendingEntry = null;
 const invitation = new URL(location.href).searchParams.get('room') || '';
@@ -14,6 +16,7 @@ function render() {
   document.documentElement.lang = lang; $('online-language').value = lang; $('online-language').setAttribute('aria-label', ['한국어','日本語','English','简体中文'].join(' / '));
   document.querySelectorAll('[data-ot]').forEach(e => { e.textContent = t(e.dataset.ot); });
   const s = client.state, g = s?.game, ended = Boolean(g?.result), connected = client.status === 'connected';
+  if (g?.id !== reviewGameId) { reviewGameId = g?.id; boardReview = false; }
   if (leaving && ended) {
     leaving = false; const entry = pendingEntry; pendingEntry = null; client.forget();
     if (entry) void enter(entry); else location.assign('./index.html'); return;
@@ -51,10 +54,15 @@ function render() {
   $('online-rematch').hidden = !ended; $('online-rematch').disabled = !connected || Boolean(client.pending) || s?.seats[s.seat]?.rematch;
   $('online-reconnect').hidden = !client.session || connected; $('online-leave').hidden = !client.session; $('copy-invite').hidden = !client.session;
   $('online-confirm-leave').disabled = (s?.status === 'playing' && !connected) || Boolean(client.pending);
-  $('online-result').hidden = !ended;
+  $('online-result').hidden = !ended || boardReview;
+  $('online-view-results').hidden = !ended || !boardReview;
+  if (ended && boardReview) $('online-rematch').hidden = true;
   if (ended) {
     const result = g.result; $('online-result-title').textContent = t(result.reason === 'bothDisconnected' ? 'void' : result.winner === null ? 'draw' : result.winner === s.seat ? 'win' : 'loss');
     $('online-result-reason').textContent = t(result.reason);
+    const outcome = result.reason === 'bothDisconnected' ? 'void' : result.winner === null ? 'draw' : result.winner === s.seat ? 'win' : 'loss';
+    const lines = resultLines(result.record, outcome, (key,params) => Object.entries(params || {}).reduce((text,[k,v]) => text.replaceAll(`{${k}}`,String(v)), t(key)));
+    $('online-result-turns').textContent = lines[0]; $('online-result-time').textContent = lines[1];
     $('online-result-score').textContent = result.scores ? `${t('score')} — ${result.scores.map((v, i) => `${t(i === s.seat ? 'me' : 'opponent')}: ${v.score} / ${v.correct} / ${v.incorrect}`).join(' · ')}` : '';
   }
 }
@@ -63,6 +71,8 @@ async function enter(kind) {
   if (client.state?.status === 'playing') { pendingEntry = kind; $('online-leave-dialog').showModal(); render(); return; }
   try { flash = ''; await client.enter(kind, $('room-input').value); } catch (e) { client.error = e.message; render(); }
 }
+$('online-view-board').addEventListener('click', () => { boardReview = true; render(); $('online-view-results').focus(); $('online-board').scrollIntoView({block:'center'}); });
+$('online-view-results').addEventListener('click', () => { boardReview = false; render(); $('online-view-board').focus(); });
 $('create-room').addEventListener('click', () => enter('create'));
 $('join-room').addEventListener('click', () => enter('join'));
 $('online-ready').addEventListener('click', () => client.send('ready'));

@@ -2,6 +2,15 @@ export const LANGUAGES = Object.freeze({ ko: '한국어', ja: '日本語', en: '
 export const LANGUAGE_KEY = 'mineDuel.language';
 // Each row is Korean / Japanese / English / Simplified Chinese. Text is rendered as text, never HTML.
 const rows = {
+  viewBoard: ['보드 보기','盤面を見る','View board','查看棋盘'],
+  viewResults: ['결과 보기','結果を見る','View results','查看结果'],
+  winTurns: ['{turns}턴 만에 승리','{turns}ターンで勝利','Victory in {turns} turns','{turns}回合获胜'],
+  lossTurns: ['{turns}턴 만에 패배','{turns}ターンで敗北','Defeat in {turns} turns','{turns}回合落败'],
+  totalTurns: ['총 진행 턴 수 · {turns}','総ターン数 · {turns}','Total turns · {turns}','总回合数 · {turns}'],
+  winTime: ['승리까지의 시간 · {time}','勝利までの時間 · {time}','Time to victory · {time}','获胜用时 · {time}'],
+  matchTime: ['대전 시간 · {time}','対戦時間 · {time}','Match time · {time}','对局用时 · {time}'],
+  recordUnavailable: ['이전 버전의 기록 정보 없음','旧バージョンの記録なし','Record unavailable for this older match','旧版本对局无记录'],
+
   inferenceContradiction: ['CPU 추론에 모순이 감지되어 행동을 중단했습니다. 메뉴에서 재시작할 수 있습니다.','CPUの推論に矛盾を検出したため、行動を停止しました。メニューから再スタートできます。','CPU inference is inconsistent. Actions stopped; restart from the menu.','CPU推理出现矛盾，已停止行动。可从菜单重新开始。'],
   explorationExhausted: ['자기 지뢰를 제외하고 탐색하거나 내 마커를 제거해 확보할 수 있는 칸이 없습니다.','自分の地雷を除き、探索できるマスも自分のマーカー解除で確保できるマスもありません。','No cells remain to explore or recover by removing your markers, excluding your own mines.','排除自身地雷后，已无可探索或通过移除自身标记恢复的格子。'],
   brand: ['턴제 지뢰찾기','ターン制マインスイーパー','Turn-based minesweeper','回合制扫雷'],

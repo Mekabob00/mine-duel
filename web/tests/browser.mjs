@@ -125,6 +125,20 @@ try {
       check(available.length>0,'human candidate available');const target=available[Math.floor(rng()*available.length)];await tap(page,`.cell[data-index="${target}"]`);
     }
     check(actions<250,'full game terminates');const result=await page.locator('#result-title').textContent();outcomes[result]=(outcomes[result]||0)+1;
+    const record=await page.locator('#result-turns').textContent()+'|'+await page.locator('#result-time').textContent();
+    check(/\d{2}:\d{2}/.test(record),'final duration shown');
+    const finalBoard=await page.locator('#board').innerHTML();
+    for(let n=0;n<3;n++) {
+      await page.locator('#view-board').click();check(!await page.locator('#result-dialog').evaluate(d=>d.open),'board review dismisses result');
+      check(await page.locator('#board button:enabled').count()===0,'finished board has no enabled actions');
+      await page.locator('#board button').first().evaluate(b=>b.click());
+      await page.clock.runFor(120000);
+      check(await page.locator('#board').innerHTML()===finalBoard,'review never changes board or schedules CPU');
+      await page.locator('#view-results').focus();await page.keyboard.press('Enter');
+      check(await page.locator('#result-dialog').evaluate(d=>d.open),'keyboard restores results');
+      check(await page.locator('#result-turns').textContent()+'|'+await page.locator('#result-time').textContent()===record,'record frozen across review');
+    }
+
   }
   await context.close();
 } finally {await browser.close();}

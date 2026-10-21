@@ -1,3 +1,4 @@
+import { resultLines } from './result.js';
 import { Game } from './game.js';
 import { CpuBrain, cpuStep } from './ai.js';
 import { PausableTimer } from './timer.js';
@@ -7,11 +8,12 @@ import { UpdateChecker } from './updates.js';
 const icon = (id, classes = '') => `<svg class="${classes}" aria-hidden="true"><use href="#icon-${id}"></use></svg>`;
 const normalPhases = [PHASE.EXPLORE, PHASE.MINE, PHASE.END];
 export class GameUI {
+  #boardReview = false;
   #game; #brain; #mode = 'explore'; #difficulty = 'normal'; #starting = true; #modal = null; #timer;
   #feedback = 'initial'; #language = 'ko'; #needsLanguage = false; #storage; #focusBeforeModal; #updates; #pendingUpdate = null;
   constructor(root = document) {
     this.root = root;
-    this.dom = Object.fromEntries(['app','board','turn','phase','difficulty','mine-counts','marker-budget','feedback','version','help','end-turn','rules-dialog','rules-action','rules-scroll','difficulty-picker','result-dialog','result-title','result-reason','result-turns','restart','result-help','menu-dialog','language-dialog','confirm-dialog','update-dialog','language-close','confirm-restart','update-now','update-later'].map(id => [id, root.getElementById(id)]));
+    this.dom = Object.fromEntries(['app','board','turn','phase','difficulty','mine-counts','marker-budget','feedback','version','help','end-turn','rules-dialog','rules-action','rules-scroll','difficulty-picker','result-dialog','result-title','result-reason','result-turns','result-time','view-board','view-results','restart','result-help','menu-dialog','language-dialog','confirm-dialog','update-dialog','language-close','confirm-restart','update-now','update-later'].map(id => [id, root.getElementById(id)]));
     try { this.#storage = window.localStorage; } catch { this.#storage = null; }
     const saved = loadLanguage(this.#storage); this.#needsLanguage = !saved; this.#language = saved || 'ko';
     this.controls = [...root.querySelectorAll('[data-mode]')];
@@ -24,6 +26,10 @@ export class GameUI {
     this.dom['end-turn'].addEventListener('click', () => this.endTurn());
     this.dom.help.addEventListener('click', () => this.openMenu());
     this.dom['result-help'].addEventListener('click', () => this.openMenu());
+    this.dom['view-board'].addEventListener('click', () => {
+      this.#boardReview = true; this.dom['result-dialog'].close(); this.#modal = null; this.render(); this.dom['view-results'].focus();
+    });
+    this.dom['view-results'].addEventListener('click', () => { this.#boardReview = false; this.render(); });
     this.dom.restart.addEventListener('click', () => { this.#open('confirm'); this.render(); });
     this.dom['confirm-restart'].addEventListener('click', () => this.newGame());
     this.dom['rules-action'].addEventListener('click', () => this.closeRules());
@@ -102,7 +108,7 @@ export class GameUI {
   }
   newGame() {
     this.#timer.clear(); this.#timer.pause(); this.#game = new Game(); this.#brain = null;
-    this.#difficulty = 'normal'; this.#mode = 'explore'; this.#starting = true; this.#feedback = 'initial';
+    this.#boardReview = false; this.#difficulty = 'normal'; this.#mode = 'explore'; this.#starting = true; this.#feedback = 'initial';
     this.root.querySelectorAll('input[name=difficulty]').forEach(i => { i.checked = i.value === 'normal'; i.disabled = false; });
     if (this.#needsLanguage) this.#open('language'); else this.#showRules(); this.render();
   }
@@ -113,7 +119,7 @@ export class GameUI {
   openMenu() { if (this.#modal && this.#modal !== 'result') return; this.#open('menu'); this.render(); }
   closeRules() {
     if (this.#modal !== 'rules') return;
-    if (this.#starting) { this.#brain = new CpuBrain(DIFFICULTIES[this.#difficulty].mistake); this.#starting = false; }
+    if (this.#starting) { this.#brain = new CpuBrain(DIFFICULTIES[this.#difficulty].mistake); this.#starting = false; this.#game.start(); }
     this.#dismiss();
   }
   #allowInput() { return !this.#modal && this.#game.current === SIDE.PLAYER && this.#game.phase !== PHASE.FINISHED; }
@@ -173,9 +179,12 @@ export class GameUI {
     this.controls.forEach(b => { b.disabled = !input||!enabled[b.dataset.mode]; b.classList.toggle('selected',b.dataset.mode===this.#mode); b.setAttribute('aria-pressed',String(b.dataset.mode===this.#mode)); });
     this.dom['end-turn'].disabled = !input||board.phase!==PHASE.END; this.dom.help.disabled = Boolean(this.#modal); this.dom.feedback.textContent = this.t(this.#feedback);
     if (board.result) {
-      this.#timer.clear(); this.dom['result-title'].textContent = this.t(board.result); this.dom['result-reason'].textContent = this.t(board.reason); this.dom['result-turns'].textContent = this.t('turnsPlayed',{turn:board.turn});
+      this.#timer.clear(); this.dom['result-title'].textContent = this.t(board.result); this.dom['result-reason'].textContent = this.t(board.reason); const lines = resultLines(board.record, board.result, (k,p) => this.t(k,p));
+      this.dom['result-turns'].textContent = lines[0]; this.dom['result-time'].textContent = lines[1];
     }
+    this.dom['view-results'].hidden = !board.result || !this.#boardReview;
+    this.dom['view-results'].disabled = Boolean(this.#modal);
     if (!this.#modal&&this.#pendingUpdate) this.#open('update');
-    if (!this.#modal&&board.result) this.#open('result'); this.#fitBoard();
+    if (!this.#modal&&board.result&&!this.#boardReview) this.#open('result'); this.#fitBoard();
   }
 }

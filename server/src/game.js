@@ -8,7 +8,7 @@ export function randomInt(n) {
   return x % n;
 }
 export function newGame(first, now, id = crypto.randomUUID()) {
-  return { id, first, current: first, phase: 'opening-reveal', openingStep: 0,
+  return { id, startedAt: now, first, current: first, phase: 'opening-reveal', openingStep: 0,
     turn: 1, turnId: 1, deadline: now + TURN_MS, markersUsed: 0,
     cells: new Board(8, 8).cells, counts: [0, 0], result: null, endedAt: null };
 }
@@ -16,7 +16,12 @@ const bit = seat => 1 << seat;
 const owns = (c, seat) => Boolean(c.owners & bit(seat));
 export function finish(g, reason, winner, now, extra = {}) {
   if (g.result) return;
-  g.result = { reason, winner, ...extra }; g.phase = 'finished'; g.deadline = null; g.endedAt = now;
+  g.result = { reason, winner, ...extra, record: resultRecord(g, now) }; g.phase = 'finished'; g.deadline = null; g.endedAt = now;
+}
+// Legacy games have no reliable start timestamp: never invent their duration.
+export function resultRecord(g, endedAt = g.endedAt) {
+  return { turns: g.openingStep >= 4 ? g.turn : 0,
+    durationMs: Number.isFinite(g.startedAt) && Number.isFinite(endedAt) ? Math.max(0, endedAt - g.startedAt) : null };
 }
 export function score(g, seat) {
   let correct = 0, incorrect = 0;
@@ -83,7 +88,7 @@ export function observe(g, seat) {
   if (!g) return null;
   const ended = Boolean(g.result);
   return { id: g.id, first: g.first, current: g.current, phase: g.phase, turn: g.turn,
-    turnId: g.turnId, deadline: g.deadline, markersUsed: g.markersUsed, counts: [...g.counts], result: structuredClone(g.result),
+    turnId: g.turnId, deadline: g.deadline, markersUsed: g.markersUsed, counts: [...g.counts], result: ended ? { ...structuredClone(g.result), record: g.result.record || resultRecord(g) } : null,
     cells: g.cells.map(c => ({ revealed: c.revealed, revealedBy: c.revealedBy, number: c.revealed ? c.number : -1,
       ownMine: owns(c, seat), marker: c.marker,
       ...(ended ? { owners: c.owners, markerCorrect: c.marker === null ? null : owns(c, 1 - c.marker) } : {}) })) };

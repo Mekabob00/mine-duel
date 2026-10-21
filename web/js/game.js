@@ -5,7 +5,9 @@ export class Game {
   #board; #config; #counts = [0, 0]; #opening = [0, 0]; #placed = 0;
   #current = SIDE.PLAYER; #phase = PHASE.OPEN_REVEAL; #turn = 1; #markersUsed = 0;
   #lastPlayerReveal = -1; #exploded = -1; #result = null; #reason = '';
-  constructor(settings = {}) {
+  #now; #startedAt = null; #record = null;
+  constructor(settings = {}, now = Date.now) {
+    this.#now = now;
     this.#config = Object.freeze({ ...DEFAULTS, ...settings });
     const c = this.#config;
     if (![c.width, c.height, c.initialMines, c.minesPerTurn, c.markersPerTurn].every(Number.isInteger)
@@ -21,11 +23,17 @@ export class Game {
   #cell(index) { return Number.isInteger(index) ? this.#board.cells[index] : null; }
   #canMine(cell, side) { return !this.#board.owns(cell, side); }
   #reply(ok, message) { return { ok, message }; }
-  #finish(result, reason) { this.#result = result; this.#reason = reason; this.#phase = PHASE.FINISHED; }
+  start() { if (this.#startedAt === null && !this.#result) this.#startedAt = this.#now(); }
+  #finish(result, reason) {
+    this.#record = Object.freeze({ turns: this.#normal() ? this.#turn : 0,
+      durationMs: this.#startedAt === null ? null : Math.max(0, this.#now() - this.#startedAt) });
+    this.#result = result; this.#reason = reason; this.#phase = PHASE.FINISHED;
+  }
   explore(side, index) {
     const c = this.#cell(index);
     if (!this.#active(side) || ![PHASE.EXPLORE, PHASE.OPEN_REVEAL].includes(this.#phase) || !c || c.revealed || c.marker || this.#board.owns(c, side))
       return this.#reply(false, 'invalidExplore');
+    this.start();
     if (c.owners) {
       this.#exploded = index;
       this.#finish(side === SIDE.PLAYER ? 'loss' : 'win', side === SIDE.PLAYER ? 'playerHit' : 'cpuHit');
@@ -100,7 +108,7 @@ export class Game {
   observe(viewer) {
     if (viewer !== SIDE.PLAYER && viewer !== SIDE.CPU) throw new Error('invalidViewer');
     return Object.freeze({ width: this.#config.width, height: this.#config.height, viewer,
-      current: this.#current, phase: this.#phase, turn: this.#turn, result: this.#result, reason: this.#reason, exploded: this.#exploded,
+      current: this.#current, phase: this.#phase, turn: this.#turn, result: this.#result, record: this.#record, reason: this.#reason, exploded: this.#exploded,
       cells: this.#board.observe(viewer), playerMines: this.#counts[0], cpuMines: this.#counts[1],
       lastPlayerReveal: this.#lastPlayerReveal, markersUsed: this.#markersUsed, markerLimit: this.#config.markersPerTurn });
   }

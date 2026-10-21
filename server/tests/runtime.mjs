@@ -24,7 +24,8 @@ try{
  const first=a.state.game.first,clients=p;
  for(const [kind,index]of [['explore',0],['explore',63],['mine',1],['mine',62]]){const seat=clients[0].state.game.current,c=clients[seat];await c.wait(s=>s.game.current===seat);const result=await c.send('action',{kind,index});check(result.ack.accepted,'opening command accepted');await clients[1-seat].wait(s=>s.revision>=result.ack.revision);}
  const active=clients[first],other=clients[1-first],before=active.state.game.id;
- const mineCell=first===0?62:1;check(active.state.game.cells[mineCell].ownMine===false,'enemy mine hidden');check(active.state.game.cells.every(c=>c.owners===undefined),'owners never in active frame');
+ const mineCell=62; // Opening actions above assign index 62 to the second actor, regardless of seat.
+ check(active.state.game.cells[mineCell].ownMine===false,'enemy mine hidden');check(active.state.game.cells.every(c=>c.owners===undefined),'owners never in active frame');
  const safe=await active.send('action',{kind:'explore',index:20});check(safe.ack.accepted,'safe explore');active.ws.send(JSON.stringify(safe.msg));await pause(150);check(active.frames.filter(x=>x.type==='ack'&&x.requestId===safe.msg.requestId).length===2,'duplicate acknowledged');check(active.state.game.phase==='place-mine','duplicate explore not applied to next phase');active.ws.send(JSON.stringify({...safe.msg,index:21}));await pause(150);check(active.frames.some(x=>x.code==='REQUEST_CONFLICT'),'same ID new payload rejected');
  active.ws.send('{malformed');await pause(100);check(active.frames.some(x=>x.code==='BAD_MESSAGE'),'invalid JSON safely rejected');
  if(process.env.TEST_RESTART==='1'){
