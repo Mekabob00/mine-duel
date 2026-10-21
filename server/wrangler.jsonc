@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mine-duel-online",
+  "account_id": "45f5d5eacef42c9ecaa63091b80dcef6",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-21",
+  "vars": { "ALLOWED_ORIGINS": "https://mekabob00.github.io" },
+  "durable_objects": { "bindings": [
+    { "name": "ROOMS", "class_name": "Room" },
+    { "name": "GATES", "class_name": "Gate" }
+  ] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room", "Gate"] }],
+  "observability": { "enabled": false }
+}

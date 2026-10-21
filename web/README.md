@@ -1,6 +1,6 @@
-# Mine Duel v0.2.3-web — 캐시 안정화 로컬 후보 (미배포)
+# Mine Duel v0.3.0-web — 온라인 PvP
 
-공개 게임은 v0.2.2-web이다. 이번 변경은 로컬 검증용이며 commit/push/배포 승인을 받지 않았다.
+기존 CPU 모드를 유지하며 온라인 1:1 대전을 별도 화면에 추가했다. 서버 운영 및 로컬 개발은 [ONLINE-PVP.md](../ONLINE-PVP.md)를 참고한다.
 
 ## 로컬 실행
 
@@ -84,10 +84,10 @@ Unity 파일, APK, 인증서/키스토어, .codex 원격 첨부, node_modules는
 
 ## MVP 범위
 
-페이지 새로고침 시 새 게임(언어만 저장). 게임 진행 저장, 계정, 네트워크 대전, 사운드, Service Worker, 서버/DB는 미구현입니다.
+페이지 새로고침 시 새 게임(언어만 저장). CPU 모드는 새로고침하면 새 게임을 시작한다. 온라인 대전은 별도 Worker/SQLite DO가 상태를 저장하고 같은 브라우저에서 세션 복귀를 지원한다. 회원 계정, 사운드, Service Worker는 미구현이다.
 최신 Android Chrome/iOS Safari를 대상으로 하며, native dialog/ES Modules/private class fields 지원이 필요합니다.
 
 
 ## 캐시 안정화 후보
 
-공개 버전은v0.2.2-web이다. v0.2.3-web은 미커밋/미배포 후보다. 업데이트 쿼리로 해당 실행 버전에 진입했을 때만 이 프로젝트의 기본 HTML을 cache:reload로 한 번 갱신한다. HTTP 캐시와 브라우저 방문 기록/BFCache는 다르며, 새 코드가 실행되지 않는 기존 HTML을 소급 수정하지 못한다. 진행 중 게임 자동 이동·Service Worker·저장 형식 변경은 없다. 이전 서버 버전은 업데이트로 안내하지 않는다.
+v0.2.3-web에서 도입한 캐시 안정화 처리를 유지한다. 업데이트 쿼리로 해당 실행 버전에 진입했을 때만 이 프로젝트의 기본 HTML을 cache:reload로 한 번 갱신한다. HTTP 캐시와 브라우저 방문 기록/BFCache는 다르며, 새 코드가 실행되지 않는 기존 HTML을 소급 수정하지 못한다. 진행 중 게임 자동 이동·Service Worker·저장 형식 변경은 없다. 이전 서버 버전은 업데이트로 안내하지 않는다.

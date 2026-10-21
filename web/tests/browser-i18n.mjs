@@ -82,15 +82,15 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]) {
     const page=await ctx.newPage();let release=VERSION,offline=false;
     await page.route('**/version.json?*',route=>offline?route.abort():route.fulfill({json:{version:release}}));
     await page.clock.install();await page.clock.pauseAt(new Date());await page.goto(`${base}/mine-duel/`);await tap(page,'#rules-action');
-    await menu(page);release='0.2.4-web';await page.clock.runFor(60001);
+    await menu(page);release='999.0.1-web';await page.clock.runFor(60001);
     check(await open(page,'menu'),'version check does not replace current popup');await tap(page,'#menu-dialog [data-close]');
     await page.waitForFunction(()=>document.getElementById('update-dialog').open);check(await page.locator('dialog[open]').count()===1,'update sole dialog');
     const original=await board(page);await tap(page,'#update-later');check(await board(page)===original,'later preserves game');
     await page.clock.runFor(60001);check(!await open(page,'update'),'dismissed version not repeated');
     offline=true;await page.clock.runFor(60001);await tap(page,'.cell[data-index="0"]');await page.clock.runFor(750);
     check(await page.locator('.revealed-cpu').count()===1,'offline check failure leaves CPU playable');
-    offline=false;release='0.2.5-web';await page.clock.runFor(60001);await page.waitForFunction(()=>document.getElementById('update-dialog').open);
-    await tap(page,'#update-now');await page.waitForURL('**/?v=0.2.5-web');check(await open(page,'rules'),'update reloads with saved language');await ctx.close();
+    offline=false;release='999.0.2-web';await page.clock.runFor(60001);await page.waitForFunction(()=>document.getElementById('update-dialog').open);
+    await tap(page,'#update-now');await page.waitForURL('**/?v=999.0.2-web');check(await open(page,'rules'),'update reloads with saved language');await ctx.close();
   } finally {await browser.close();}
 }
 const report={checks,languages:Object.keys(LANGUAGES),engines:['Chromium','WebKit'],version:VERSION};

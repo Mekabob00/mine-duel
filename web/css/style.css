@@ -79,3 +79,18 @@ fieldset { border:0; margin:0; padding:0; }legend { padding:0 0 8px; font-size:1
 @media (max-height:660px) { .app { gap:6px; }.eyebrow { font-size:9px; }h1 { font-size:25px; }.help { width:36px; height:36px; }.status { gap:3px; }.board { --size:min(100vw - 28px,452px,var(--viewport-height) - 268px); }.control,.end-turn { min-height:36px; }.feedback { min-height:26px; font-size:11px; }.modal { padding:17px; }.rules-modal[open] { gap:10px; }.modal-heading p { font-size:12px; }.modal h2 { font-size:24px; margin-bottom:4px; }.modal-footer { gap:10px; }.difficulty-options span { min-height:51px; } }
 @media (max-height:520px) and (orientation:landscape) { .app { min-height:520px; }.board { --size:252px; }.modal { max-height:calc(var(--viewport-height) - 16px); }.modal-heading p { display:none; } }
 @media (prefers-reduced-motion:no-preference) { .control,.primary { transition:background-color .14s ease; } }
+.online-app { height:auto; min-height:100dvh; overflow:visible; }
+.online-app [hidden] { display:none !important; }
+.online-lobby { display:grid; gap:10px; }.online-lobby label { display:grid; gap:5px; }
+.online-app input,.online-app select { color:var(--text,#e6edf7); background:#1c3047; border:1px solid #48627f; border-radius:8px; min-height:40px; padding:6px; max-width:100%; }
+.online-app .board { --size:min(100vw - 32px, 390px); }
+.online-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.online-app .status p { margin:0; }.online-app .legend { flex-wrap:wrap; white-space:normal; line-height:1.5; }
+.online-app output { overflow-wrap:anywhere; font-size:12px; }#online-clock { font-size:22px; font-weight:bold; }
+.online-flag { font-size:12px; }.mine-flag { color:#16718b; }.their-flag { color:#b82f46; }
+.online-app .cell { font-size:clamp(13px,4vw,22px); position:relative; }
+.online-app .controls button { min-height:44px; border-radius:10px; background:#293b52; font-size:12px; padding:6px; }
+.online-app button:disabled { opacity:.45; }
+.online-app .controls button.selected:not(:disabled) { background:#154765; outline:1px solid #2b81ac; }
+.online-app .cell:disabled { opacity:1; }
+.online-app #online-counts { margin:0; line-height:1.5; font-size:11px; }

@@ -1,7 +1,11 @@
 # Mine Duel
 
 모바일 브라우저에서 실행하는 턴제 지뢰찾기 × 심리전.
-HTML/CSS/JavaScript ES Modules, 프레임워크/서버/DB 없이 동작합니다.
+HTML/CSS/JavaScript ES Modules 기반입니다. CPU 대전은 정적으로 실행되고, 온라인 1:1 대전은 Cloudflare Workers Free + SQLite Durable Objects를 사용합니다.
+
+- 현재 릴리스: **v0.3.0-web**
+- [공개 게임](https://mekabob00.github.io/mine-duel/) · [온라인 대전](https://mekabob00.github.io/mine-duel/online.html)
+- 온라인 실행·운영·무료 한도: [ONLINE-PVP.md](ONLINE-PVP.md)
 
 - 원본: [web/](web/)
 - GitHub Pages 정적 배포본: [docs/](docs/)

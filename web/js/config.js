@@ -1,4 +1,4 @@
-export const VERSION = '0.2.3-web';
+export const VERSION = '0.3.0-web';
 export const SIDE = Object.freeze({ PLAYER: 'player', CPU: 'cpu' });
 export const PHASE = Object.freeze({ OPEN_REVEAL: 'opening-reveal', OPEN_MINE: 'opening-mine', EXPLORE: 'explore', MINE: 'place-mine', END: 'end-turn', FINISHED: 'finished' });
 export const DIFFICULTIES = Object.freeze({
