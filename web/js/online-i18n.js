@@ -1,4 +1,8 @@
 const rows = {
+  durationSeconds: ['{seconds}초','{seconds}秒','{seconds}s','{seconds}秒'],
+  durationMinutes: ['{minutes}분 {seconds}초','{minutes}分{seconds}秒','{minutes}m {seconds}s','{minutes}分{seconds}秒'],
+  durationHours: ['{hours}시간 {minutes}분 {seconds}초','{hours}時間{minutes}分{seconds}秒','{hours}h {minutes}m {seconds}s','{hours}小时{minutes}分{seconds}秒'],
+
   viewBoard: ['보드 보기','盤面を見る','View board','查看棋盘'],
   viewResults: ['결과 보기','結果を見る','View results','查看结果'],
   winTurns: ['{turns}턴 만에 승리','{turns}ターンで勝利','Victory in {turns} turns','{turns}回合获胜'],

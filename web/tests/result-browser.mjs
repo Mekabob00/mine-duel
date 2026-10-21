@@ -17,7 +17,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
    check(options.length>0,'legal public candidate exists');await options[(n*13+j)%options.length].click();
   }
   check(await page.locator('#result-dialog').evaluate(d=>d.open),'actual game ends');
-  const text=await page.locator('#result-turns').textContent()+'|'+await page.locator('#result-time').textContent();check(/\d{2}:\d{2}/.test(text),'time formatted');const finalBoard=await page.locator('#board').innerHTML();
+  const text=await page.locator('#result-turns').textContent()+'|'+await page.locator('#result-time').textContent();check(/\d/.test(await page.locator('#result-time').textContent()),'localized time displayed');const finalBoard=await page.locator('#board').innerHTML();
   for(let n=0;n<3;n++) {
    await page.locator('#view-board').click();check(!await page.locator('#result-dialog').isVisible(),'board review');check(await page.locator('.cell:enabled').count()===0,'read only');check(await page.locator('#view-results').textContent()===translate(lang,'viewResults'),'localized restore control');
    check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow');await page.clock.runFor(90000);check(await page.locator('#board').innerHTML()===finalBoard,'no stale CPU or board mutation');

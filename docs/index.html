@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1726"><title>Mine Duel</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1726'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='44' fill='%2355c7ff'%3E✹%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="./css/style.c390b6b6d7dd.css"><script type="module" src="./js/main.bbb0ba16570d.js"></script>
+<link rel="stylesheet" href="./css/style.c390b6b6d7dd.css"><script type="module" src="./js/main.77e2c8de6f0e.js"></script>
 </head><body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <symbol id="icon-mine" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3M16 8l3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="6" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="#0d1726"/></symbol>
@@ -14,10 +14,10 @@
 <header class="header"><div class="brand"><span class="eyebrow" data-i18n="brand"></span><h1>Mine Duel<span class="brand-dot">.</span></h1></div><button id="help" class="help" data-i18n-aria="menu" aria-haspopup="dialog">☰</button></header>
 <section class="status" data-i18n-aria="status"><div class="status-top"><span id="turn" class="turn"></span><span id="difficulty" class="difficulty"></span></div><div id="phase" class="phase"></div><div class="metrics"><span id="mine-counts"></span><span id="marker-budget"></span></div></section>
 <section class="board-section" data-i18n-aria="board"><div id="board" class="board" role="group" data-i18n-aria="boardSize"></div></section>
+<button id="view-results" class="primary" data-i18n="viewResults" hidden></button>
 <div class="legend"><span><i class="swatch player"></i><span data-i18n="myExplore"></span></span><span><i class="swatch cpu"></i><span data-i18n="cpuExplore"></span></span><span class="flag-player">⚑ <span data-i18n="ownMarker"></span></span><span class="flag-cpu">⚑ <span data-i18n="cpuMarker"></span></span></div>
 <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
 <nav class="controls" data-i18n-aria="controls"><button class="control" data-mode="explore" data-i18n="explore"></button><button class="control" data-mode="mine" data-i18n="mine"></button><button class="control" data-mode="marker" data-i18n="marker"></button><button class="control" data-mode="remove" data-i18n="remove"></button><button class="end-turn" id="end-turn" data-i18n="endTurn"></button></nav>
-<button id="view-results" class="primary" data-i18n="viewResults" hidden></button>
 <footer class="footer"><span data-i18n="gameName"></span><span id="version"></span></footer>
 </main>
 <dialog id="language-dialog" class="modal compact-modal" aria-labelledby="language-title"><h2 id="language-title">Select Language</h2><div class="language-options"><button class="secondary" data-language="ko" lang="ko" aria-pressed="false">한국어</button><button class="secondary" data-language="ja" lang="ja" aria-pressed="false">日本語</button><button class="secondary" data-language="en" lang="en" aria-pressed="false">English</button><button class="secondary" data-language="zh-CN" lang="zh-CN" aria-pressed="false">简体中文</button></div><button class="secondary" id="language-close" data-close data-i18n="close"></button></dialog>

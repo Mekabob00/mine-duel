@@ -126,7 +126,7 @@ try {
     }
     check(actions<250,'full game terminates');const result=await page.locator('#result-title').textContent();outcomes[result]=(outcomes[result]||0)+1;
     const record=await page.locator('#result-turns').textContent()+'|'+await page.locator('#result-time').textContent();
-    check(/\d{2}:\d{2}/.test(record),'final duration shown');
+    check(/대전 시간|승리까지의 시간/.test(record),'localized final duration shown');
     const finalBoard=await page.locator('#board').innerHTML();
     for(let n=0;n<3;n++) {
       await page.locator('#view-board').click();check(!await page.locator('#result-dialog').evaluate(d=>d.open),'board review dismisses result');
